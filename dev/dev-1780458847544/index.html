@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>개발 기록 — MY.BLOG</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0c0f;--surface:#13161a;--surface2:#1a1e24;--border:#252a32;--text:#eef0f3;--muted:#7a8494;--accent:#4ade80;--radius:12px}
+    body{background:var(--bg);color:var(--text);font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;line-height:1.6}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:64px;background:rgba(10,12,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+    .nav-back{font-size:.78rem;color:var(--muted);text-decoration:none;letter-spacing:.06em;transition:color .2s}.nav-back:hover{color:var(--text)}
+    .nav-links{display:flex;gap:20px;list-style:none}.nav-links a{font-size:.83rem;color:var(--muted);text-decoration:none;transition:color .2s}.nav-links a:hover{color:var(--text)}.nav-accent{color:var(--accent)!important}
+    .page-top{padding:120px 56px 56px;border-bottom:1px solid var(--border)}
+    .breadcrumb{font-size:.75rem;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px}.breadcrumb a{color:var(--muted);text-decoration:none}.breadcrumb a:hover{color:var(--text)}
+    .dev-cat-badge{display:inline-block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);padding:4px 12px;border-radius:4px;font-weight:700;margin-bottom:16px}
+    .dev-page-date{font-size:.78rem;color:var(--muted);margin-bottom:14px;letter-spacing:.05em}
+    .dev-page-title{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;letter-spacing:-.03em;margin-bottom:14px;line-height:1.1}
+    .dev-page-desc{font-size:1rem;color:var(--muted);line-height:1.8;max-width:640px;margin-bottom:20px}
+    .dev-tags{display:flex;gap:7px;flex-wrap:wrap}
+    .dev-tag{font-size:.72rem;background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:4px 11px;border-radius:999px}
+    .article{padding:56px 56px 0;max-width:800px}
+    .dev-page-body{font-size:.97rem;line-height:1.9;color:#c8d0dc}.dev-page-body p{margin-bottom:18px}
+    .code-blocks-wrap{padding:0 56px 80px}
+    .code-block{margin-top:48px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    .code-block-hd{padding:20px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
+    .block-title{font-size:1rem;font-weight:800;letter-spacing:-.01em;margin-bottom:4px}
+    .block-desc{font-size:.82rem;color:var(--muted)}
+    .preview-wrap{background:#fff}
+    .preview-bar{padding:8px 16px;background:#f0f0f0;font-size:.72rem;color:#888;letter-spacing:.06em;display:flex;align-items:center;gap:6px;border-bottom:1px solid #ddd}
+    .preview-wrap iframe{width:100%;border:none;display:block;min-height:60px}
+    .code-wrap{}
+    .code-bar{padding:10px 16px;background:var(--surface2);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .code-lang-badge{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:700}
+    .code-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:6px;font-size:.75rem;cursor:pointer;transition:all .15s}.code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-pre{margin:0;padding:20px;background:#0d1117;overflow-x:auto;font-family:'JetBrains Mono','Fira Code','Consolas',monospace;font-size:.82rem;line-height:1.7;color:#c9d1d9}
+    footer{padding:48px 56px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-top:80px}
+    .footer-logo{font-size:.9rem;font-weight:800;color:var(--accent)}.footer-text{font-size:.77rem;color:var(--muted)}
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}.reveal.visible{opacity:1;transform:none}
+    @media(max-width:768px){nav{padding:0 16px;height:56px}.page-top{padding:90px 20px 40px}.article,.code-blocks-wrap{padding-left:20px;padding-right:20px}.code-pre{font-size:.76rem}footer{padding:28px 20px;flex-direction:column;gap:6px}}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="nav-back" href="../../index.html">← MY.BLOG</a>
+  <ul class="nav-links">
+    <li><a href="#article">본문</a></li>
+    <li><a href="#code-blocks-section">코드</a></li>
+    <li><a href="../index.html" class="nav-accent">💻 개발 목록</a></li>
+  </ul>
+</nav>
+<div class="page-top">
+  <div class="breadcrumb"><a href="../../index.html">홈</a><span>›</span><a href="../index.html">개발</a><span>›</span><span>기록</span></div>
+  <div class="dev-cat-badge dev-page-category"></div>
+  <p class="dev-page-date"></p>
+  <h1 class="dev-page-title"></h1>
+  <p class="dev-page-desc"></p>
+  <div class="dev-tags" id="dev-page-tags"></div>
+</div>
+<div class="article" id="article">
+  <div class="dev-page-body" id="dev-page-body"></div>
+</div>
+<div class="code-blocks-wrap" id="code-blocks-section">
+  <div id="code-blocks"></div>
+</div>
+<footer>
+  <div class="footer-logo">💻 DEV LOG</div>
+  <div class="footer-text">MY.BLOG · 개발 기록</div>
+</footer>
+<script src="../../data.js"></script>
+<script src="../../js/blog.js"></script>
+<script>initDevPage('dev-1780458847544');</script>
+</body>
+</html>

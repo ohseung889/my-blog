@@ -1,98 +1,34 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>여행 일기 — MY.BLOG</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #0a0c0f; --surface: #13161a; --surface2: #1a1e24;
-      --border: #252a32; --text: #eef0f3; --muted: #7a8494;
-      --accent: #6cb8f5; --radius: 16px;
-    }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.6; }
-
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 56px; height: 64px;
-      background: rgba(10,12,15,0.88); backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-logo { font-size: 1rem; font-weight: 900; letter-spacing: 0.06em; color: var(--text); text-decoration: none; }
-    .nav-logo span { color: var(--accent); }
-    .nav-links { display: flex; gap: 8px; list-style: none; }
-    .nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; padding: 6px 14px; border-radius: 999px; transition: color 0.2s, background 0.2s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
-
-    .page-header { padding: 140px 56px 72px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
-    .page-header::before { content: '✈️'; position: absolute; right: 80px; top: 80px; font-size: 12rem; opacity: 0.04; pointer-events: none; }
-    .breadcrumb { font-size: 0.75rem; color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .breadcrumb a { color: var(--muted); text-decoration: none; }
-    .breadcrumb a:hover { color: var(--text); }
-    .page-title { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 900; letter-spacing: -0.03em; margin-bottom: 16px; }
-    .page-title span { color: var(--accent); }
-    .page-desc { font-size: 1rem; color: var(--muted); max-width: 500px; line-height: 1.8; }
-
-    .stats-bar { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); }
-    .stat { padding: 24px 40px; border-right: 1px solid var(--border); }
-    .stat-num { font-size: 1.8rem; font-weight: 900; color: var(--accent); line-height: 1; }
-    .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
-
-    .trips-section { padding: 72px 56px; }
-    .section-header { margin-bottom: 40px; }
-    .section-eyebrow { font-size: 0.7rem; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
-    .section-title { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.02em; }
-
-    .trips-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-
-    .trip-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); overflow: hidden; text-decoration: none; color: var(--text);
-      display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s;
-    }
-    .trip-card:hover { border-color: rgba(108,184,245,0.4); transform: translateY(-5px); }
-    .trip-thumb { width: 100%; height: 240px; object-fit: cover; display: block; background: var(--surface2); }
-    .trip-body { padding: 28px; flex: 1; display: flex; flex-direction: column; }
-    .trip-flag { font-size: 1.5rem; margin-bottom: 12px; }
-    .trip-country { font-size: 0.7rem; letter-spacing: 0.16em; color: var(--accent); text-transform: uppercase; margin-bottom: 7px; }
-    .trip-name { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 10px; line-height: 1.2; }
-    .trip-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.75; flex: 1; }
-    .trip-meta { display: flex; align-items: center; gap: 14px; margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--muted); flex-wrap: wrap; }
-    .trip-meta strong { color: var(--text); }
-
-    .trip-card.coming { border-style: dashed; opacity: 0.45; pointer-events: none; align-items: center; justify-content: center; min-height: 300px; }
-    .coming-inner { text-align: center; padding: 40px; }
-    .coming-icon { font-size: 2.5rem; margin-bottom: 16px; opacity: 0.4; }
-    .coming-text { font-size: 0.9rem; color: var(--muted); }
-
-    footer { padding: 48px 56px; background: var(--surface); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .footer-logo { font-size: 0.9rem; font-weight: 900; }
-    .footer-logo span { color: var(--accent); }
-    .footer-text { font-size: 0.77rem; color: var(--muted); }
-
-    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
-    .reveal.visible { opacity: 1; transform: none; }
-
-    @media (max-width: 768px) {
-      nav { padding: 0 16px; height: 56px; }
-      .nav-links { gap: 2px; }
-      .nav-links a { font-size: 0.72rem; padding: 4px 8px; }
-      .page-header { padding: 90px 20px 40px; }
-      .page-header::before { font-size: 6rem; right: 20px; top: 50px; }
-      .stats-bar { flex-wrap: wrap; }
-      .stat { flex: 0 0 50%; border-right: none; border-bottom: 1px solid var(--border); padding: 16px 20px; }
-      .trips-section { padding: 48px 20px; }
-      .trips-grid { grid-template-columns: 1fr; }
-      .trip-thumb { height: 200px; }
-      footer { padding: 28px 20px; flex-direction: column; gap: 6px; }
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0c0f;--surface:#13161a;--surface2:#1a1e24;--border:#252a32;--text:#eef0f3;--muted:#7a8494;--accent:#6cb8f5;--radius:16px}
+    body{background:var(--bg);color:var(--text);font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;line-height:1.6}
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:64px;background:rgba(10,12,15,.88);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+    .nav-logo{font-size:1rem;font-weight:900;letter-spacing:.06em;color:var(--text);text-decoration:none}.nav-logo span{color:var(--accent)}
+    .nav-links{display:flex;gap:8px;list-style:none}.nav-links a{font-size:.82rem;color:var(--muted);text-decoration:none;padding:6px 14px;border-radius:999px;transition:color .2s,background .2s}.nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--surface2)}
+    .page-header{padding:140px 56px 72px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}.page-header::before{content:'✈️';position:absolute;right:80px;top:80px;font-size:12rem;opacity:.04;pointer-events:none}
+    .breadcrumb{font-size:.75rem;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px}.breadcrumb a{color:var(--muted);text-decoration:none}.breadcrumb a:hover{color:var(--text)}
+    .page-title{font-size:clamp(2.5rem,5vw,4.5rem);font-weight:900;letter-spacing:-.03em;margin-bottom:16px}.page-title span{color:var(--accent)}
+    .page-desc{font-size:1rem;color:var(--muted);max-width:500px;line-height:1.8}
+    .stats-bar{display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
+    .stat{padding:24px 40px;border-right:1px solid var(--border)}.stat-num{font-size:1.8rem;font-weight:900;color:var(--accent);line-height:1}.stat-label{font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+    .trips-section{padding:72px 56px}
+    .section-eyebrow{font-size:.7rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:8px}.section-title{font-size:1.4rem;font-weight:900;letter-spacing:-.02em;margin-bottom:36px}
+    .trips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+    .trip-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;text-decoration:none;color:var(--text);display:flex;flex-direction:column;transition:border-color .2s,transform .2s}.trip-card:hover{border-color:rgba(108,184,245,.4);transform:translateY(-5px)}
+    .trip-thumb{width:100%;height:240px;object-fit:cover;display:block;background:var(--surface2)}
+    .trip-body{padding:28px;flex:1;display:flex;flex-direction:column}.trip-flag{font-size:1.5rem;margin-bottom:12px}.trip-country{font-size:.7rem;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;margin-bottom:7px}.trip-name{font-size:1.3rem;font-weight:900;letter-spacing:-.02em;margin-bottom:10px;line-height:1.2}.trip-desc{font-size:.85rem;color:var(--muted);line-height:1.75;flex:1}.trip-meta{display:flex;align-items:center;gap:14px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);font-size:.75rem;color:var(--muted);flex-wrap:wrap}.trip-meta strong{color:var(--text)}
+    .trip-card.coming{border-style:dashed;opacity:.45;pointer-events:none;align-items:center;justify-content:center;min-height:300px}.coming-inner{text-align:center;padding:40px}.coming-icon{font-size:2.5rem;margin-bottom:16px;opacity:.4}.coming-text{font-size:.9rem;color:var(--muted)}
+    footer{padding:48px 56px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}.footer-logo{font-size:.9rem;font-weight:900}.footer-logo span{color:var(--accent)}.footer-text{font-size:.77rem;color:var(--muted)}
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .55s ease,transform .55s ease}.reveal.visible{opacity:1;transform:none}
+    @media(max-width:768px){nav{padding:0 16px;height:56px}.nav-links a{font-size:.72rem;padding:4px 8px}.page-header{padding:90px 20px 40px}.page-header::before{font-size:6rem;right:20px;top:50px}.stats-bar{flex-wrap:wrap}.stat{flex:0 0 50%;border-right:none;border-bottom:1px solid var(--border);padding:16px 20px}.trips-section{padding:48px 20px}.trips-grid{grid-template-columns:1fr}.trip-thumb{height:200px}footer{padding:28px 20px;flex-direction:column;gap:6px}}
   </style>
 </head>
 <body>
-
 <nav>
   <a class="nav-logo" href="../index.html">MY<span>.</span>BLOG</a>
   <ul class="nav-links">
@@ -101,72 +37,73 @@
     <li><a href="../diary/index.html">📝 일기</a></li>
   </ul>
 </nav>
-
 <div class="page-header">
   <div class="breadcrumb"><a href="../index.html">홈</a><span>›</span><span>여행</span></div>
   <h1 class="page-title">여행 <span>일기</span></h1>
-  <p class="page-desc">다녀온 곳들의 기록. 만년설, 골목, 야시장, 그리고 낯선 언어들. 사진과 함께 쌓아가는 여행의 모든 순간.</p>
+  <p class="page-desc">다녀온 곳들의 기록. 만년설, 골목, 야시장, 그리고 낯선 언어들.</p>
 </div>
-
 <div class="stats-bar">
-  <div class="stat"><div class="stat-num">2</div><div class="stat-label">Trips</div></div>
-  <div class="stat"><div class="stat-num">2</div><div class="stat-label">Countries</div></div>
-  <div class="stat"><div class="stat-num">77</div><div class="stat-label">Photos</div></div>
-  <div class="stat"><div class="stat-num">11</div><div class="stat-label">Entries</div></div>
+  <div class="stat"><div class="stat-num" id="stat-trips">-</div><div class="stat-label">Trips</div></div>
+  <div class="stat"><div class="stat-num" id="stat-countries">-</div><div class="stat-label">Countries</div></div>
+  <div class="stat"><div class="stat-num" id="stat-photos">-</div><div class="stat-label">Photos</div></div>
+  <div class="stat"><div class="stat-num" id="stat-entries">-</div><div class="stat-label">Entries</div></div>
 </div>
-
 <section class="trips-section">
-  <div class="section-header reveal">
-    <p class="section-eyebrow">✦ All Trips</p>
-    <h2 class="section-title">전체 여행</h2>
-  </div>
-  <div class="trips-grid">
+  <p class="section-eyebrow reveal">✦ All Trips</p>
+  <h2 class="section-title reveal">전체 여행</h2>
+  <div class="trips-grid" id="trips-grid"></div>
+</section>
 
-    <a class="trip-card reveal" href="france/index.html">
-      <img class="trip-thumb" src="france/images/DSC01549.JPG" alt="파리" />
-      <div class="trip-body">
-        <div class="trip-flag">🇫🇷</div>
-        <div class="trip-country">France · Europe</div>
-        <h3 class="trip-name">파리 — 웨딩 스냅 촬영 여행</h3>
-        <p class="trip-desc">에펠탑 아래, 센 강 다리 위, 파리 루프탑에서. 우리가 가장 아름다웠던 순간들을 파리의 골목과 다리 위에 남겼다.</p>
-        <div class="trip-meta">
-          <span>📍 <strong>파리</strong></span>
-          <span>📸 <strong>50장</strong></span>
-          <span>📖 <strong>6개 일기</strong></span>
-        </div>
-      </div>
-    </a>
-
-    <a class="trip-card reveal" href="switzerland/index.html">
-      <img class="trip-thumb" src="switzerland/사진/55438EE3-6E6C-4C0C-86A5-7C5DAD204D68_1_105_c.jpeg" alt="스위스" />
-      <div class="trip-body">
-        <div class="trip-flag">🇨🇭</div>
-        <div class="trip-country">Switzerland · Europe</div>
-        <h3 class="trip-name">인터라켄 & 그린델발트 & 융프라우요흐</h3>
-        <p class="trip-desc">해발 3,454m 유럽의 정상부터 에메랄드빛 브리엔츠 호수, 알프스 산악 마을까지. 만년설과 파란 하늘이 공존하는 스위스.</p>
-        <div class="trip-meta">
-          <span>📍 <strong>5개 도시</strong></span>
-          <span>📸 <strong>27장</strong></span>
-          <span>📖 <strong>5개 일기</strong></span>
-        </div>
-      </div>
-    </a>
-
-    <div class="trip-card coming">
-      <div class="coming-inner"><div class="coming-icon">🗺</div><p class="coming-text">다음 여행 기록이 추가됩니다</p></div>
-    </div>
-
-  </div>
+<!-- 인터랙티브 지도 -->
+<section style="padding:0 56px 72px;background:var(--bg)">
+  <p style="font-size:.7rem;letter-spacing:.2em;color:var(--accent);text-transform:uppercase;margin-bottom:14px">✦ Map</p>
+  <h2 style="font-size:1.4rem;font-weight:900;letter-spacing:-.02em;margin-bottom:28px">다녀온 곳</h2>
+  <div id="travel-map" style="height:420px;border-radius:14px;overflow:hidden;border:1px solid var(--border)"></div>
 </section>
 
 <footer>
   <div class="footer-logo">MY<span>.</span>BLOG</div>
   <div class="footer-text">✈️ 여행 일기</div>
 </footer>
-
+<script src="../data.js"></script>
+<script src="../js/blog.js"></script>
 <script>
-const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.08});
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+async function initTravelList() {
+  const data = await getData();
+  const travel = data.travel || [];
+  const totalPhotos  = travel.reduce((a,t) => a + (t.stats?.photos||0), 0);
+  const totalEntries = travel.reduce((a,t) => a + (t.entries?.length||0), 0);
+  const totalCountries = new Set(travel.map(t => t.country?.split('·')[0]?.trim())).size;
+  document.getElementById('stat-trips')     && (document.getElementById('stat-trips').textContent     = travel.length);
+  document.getElementById('stat-countries') && (document.getElementById('stat-countries').textContent = totalCountries);
+  document.getElementById('stat-photos')    && (document.getElementById('stat-photos').textContent    = totalPhotos);
+  document.getElementById('stat-entries')   && (document.getElementById('stat-entries').textContent   = totalEntries);
+  const grid = document.getElementById('trips-grid');
+  if (grid) {
+    grid.innerHTML = travel.map(t => `
+      <a class="trip-card reveal" href="${t.id}/index.html">
+        <img class="trip-thumb" src="/${t.thumbImage}" alt="${h(t.title)}" onerror="this.style.display='none'" />
+        <div class="trip-body">
+          <div class="trip-flag">${t.flag}</div>
+          <div class="trip-country">${h(t.country)}</div>
+          <h3 class="trip-name">${h(t.title)}</h3>
+          <p class="trip-desc">${h(t.description)}</p>
+          <div class="trip-meta">
+            <span>📍 <strong>${t.stats?.days||'?'}일</strong></span>
+            <span>📸 <strong>${t.stats?.photos||0}장</strong></span>
+            <span>📖 <strong>${t.entries?.length||0}개 일기</strong></span>
+          </div>
+        </div>
+      </a>`).join('') + `
+      <div class="trip-card coming">
+        <div class="coming-inner"><div class="coming-icon">🗺</div><p class="coming-text">다음 여행 기록이 추가됩니다</p></div>
+      </div>`;
+  }
+  initReveal();
+  // Leaflet 지도 초기화
+  await initTravelMap(travel);
+}
+initTravelList();
 </script>
 </body>
 </html>

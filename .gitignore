@@ -1,0 +1,6 @@
+# 시스템
+.DS_Store
+Thumbs.db
+
+# 에디터 도구 (blog-editor/ 폴더가 따로 있으므로 여기선 필요 없음)
+# data.json은 콘텐츠이므로 Git에 포함
