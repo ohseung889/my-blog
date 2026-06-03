@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>나의 블로그</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0c0f;
+      --surface: #13161a;
+      --surface2: #1a1e24;
+      --border: #252a32;
+      --text: #eef0f3;
+      --muted: #7a8494;
+      --radius: 16px;
+
+      /* 섹션별 컬러 */
+      --travel: #6cb8f5;
+      --dev: #7eed9b;
+      --diary: #f5a66c;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.6; min-height: 100vh; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 56px; height: 64px;
+      background: rgba(10,12,15,0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-size: 1rem; font-weight: 900; letter-spacing: 0.06em; color: var(--text); text-decoration: none; }
+    .nav-logo span { color: var(--travel); }
+    .nav-links { display: flex; gap: 8px; list-style: none; }
+    .nav-links a {
+      font-size: 0.82rem; color: var(--muted); text-decoration: none;
+      padding: 6px 14px; border-radius: 999px; letter-spacing: 0.03em;
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); background: var(--surface2); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 0 56px; position: relative; overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 70% at 80% 30%, rgba(108,184,245,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 60% at 10% 80%, rgba(126,237,155,0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 50% 60%, rgba(245,166,108,0.04) 0%, transparent 60%);
+    }
+    .hero-grid-line {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 80%);
+      opacity: 0.4;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 800px; }
+    .hero-eyebrow {
+      font-size: 0.7rem; letter-spacing: 0.22em; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .hero-eyebrow::before { content: ''; display: block; width: 24px; height: 1px; background: var(--muted); }
+    .hero-title {
+      font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 900;
+      line-height: 1.04; letter-spacing: -0.035em; margin-bottom: 28px;
+    }
+    .hero-title .line-travel { color: var(--travel); }
+    .hero-title .line-dev { color: var(--dev); }
+    .hero-title .line-diary { color: var(--diary); }
+    .hero-desc {
+      font-size: 1.05rem; color: var(--muted); max-width: 460px;
+      line-height: 1.85; margin-bottom: 44px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--travel); color: #050810;
+      padding: 12px 24px; border-radius: 999px;
+      font-size: 0.88rem; font-weight: 800; text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-2px); }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 12px 24px; border-radius: 999px;
+      font-size: 0.88rem; text-decoration: none;
+      transition: color 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .btn-secondary:hover { color: var(--text); border-color: var(--text); transform: translateY(-2px); }
+
+    /* ── SECTIONS ── */
+    .sections { padding: 100px 56px; background: var(--surface); }
+    .sections-header { margin-bottom: 56px; }
+    .eyebrow {
+      font-size: 0.7rem; letter-spacing: 0.22em; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    .sec-title {
+      font-size: clamp(1.7rem, 3vw, 2.4rem); font-weight: 900;
+      letter-spacing: -0.025em;
+    }
+
+    .sections-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    .section-card {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 40px 36px;
+      text-decoration: none; color: var(--text);
+      display: flex; flex-direction: column; gap: 20px;
+      position: relative; overflow: hidden;
+      transition: border-color 0.25s, transform 0.2s;
+    }
+    .section-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .section-card.travel::before { background: var(--travel); }
+    .section-card.dev::before { background: var(--dev); }
+    .section-card.diary::before { background: var(--diary); }
+    .section-card:hover { transform: translateY(-6px); }
+    .section-card.travel:hover { border-color: rgba(108,184,245,0.4); }
+    .section-card.dev:hover { border-color: rgba(126,237,155,0.4); }
+    .section-card.diary:hover { border-color: rgba(245,166,108,0.4); }
+
+    .card-icon { font-size: 2.2rem; line-height: 1; }
+    .card-category {
+      font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+      font-weight: 700;
+    }
+    .section-card.travel .card-category { color: var(--travel); }
+    .section-card.dev .card-category { color: var(--dev); }
+    .section-card.diary .card-category { color: var(--diary); }
+
+    .card-name { font-size: 1.5rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.2; }
+    .card-desc { font-size: 0.87rem; color: var(--muted); line-height: 1.75; flex: 1; }
+    .card-count {
+      font-size: 0.75rem; color: var(--muted);
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 16px; border-top: 1px solid var(--border);
+    }
+    .card-arrow { font-size: 1rem; }
+
+    /* ── RECENT ── */
+    .recent { padding: 100px 56px; background: var(--bg); }
+    .recent-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; }
+    .recent-list { display: flex; flex-direction: column; }
+    .recent-item {
+      display: flex; align-items: center; gap: 24px;
+      padding: 22px 0; border-bottom: 1px solid var(--border);
+      text-decoration: none; color: var(--text);
+      transition: padding-left 0.2s;
+    }
+    .recent-item:first-child { border-top: 1px solid var(--border); }
+    .recent-item:hover { padding-left: 8px; }
+    .recent-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .recent-item.travel .recent-dot { background: var(--travel); }
+    .recent-item.dev .recent-dot { background: var(--dev); }
+    .recent-item.diary .recent-dot { background: var(--diary); }
+
+    .recent-meta { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.06em; white-space: nowrap; }
+    .recent-text { flex: 1; }
+    .recent-title { font-size: 0.97rem; font-weight: 700; margin-bottom: 3px; }
+    .recent-sub { font-size: 0.8rem; color: var(--muted); }
+    .recent-tag {
+      font-size: 0.67rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 4px; font-weight: 700; white-space: nowrap;
+    }
+    .recent-item.travel .recent-tag { background: rgba(108,184,245,0.12); color: var(--travel); }
+    .recent-item.dev .recent-tag { background: rgba(126,237,155,0.12); color: var(--dev); }
+    .recent-item.diary .recent-tag { background: rgba(245,166,108,0.12); color: var(--diary); }
+    .recent-arrow { color: var(--border); font-size: 1rem; transition: color 0.2s; }
+    .recent-item:hover .recent-arrow { color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 48px 56px; background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo { font-size: 0.95rem; font-weight: 900; letter-spacing: 0.06em; }
+    .footer-logo span { color: var(--travel); }
+    .footer-text { font-size: 0.77rem; color: var(--muted); }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; height: 56px; }
+      .nav-links { gap: 2px; }
+      .nav-links a { font-size: 0.72rem; padding: 4px 8px; }
+      .hero { padding: 80px 20px 56px; min-height: 100svh; align-items: flex-end; }
+      .sections, .recent { padding: 56px 20px; }
+      .sections-grid { grid-template-columns: 1fr; }
+      .recent-item { flex-wrap: wrap; gap: 8px; }
+      .recent-meta { order: -1; width: 100%; }
+      .recent-arrow { display: none; }
+      footer { padding: 28px 20px; flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">MY<span>.</span>BLOG</a>
+  <ul class="nav-links">
+    <li><a href="travel/index.html">✈️ 여행</a></li>
+    <li><a href="dev/index.html">💻 개발</a></li>
+    <li><a href="diary/index.html">📝 일기</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-line"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Personal Blog</p>
+    <h1 class="hero-title">
+      <span class="line-travel">여행,</span><br />
+      <span class="line-dev">개발,</span><br />
+      <span class="line-diary">그리고 일상.</span>
+    </h1>
+    <p class="hero-desc">
+      다녀온 곳들의 기록, 만들고 배운 것들의 메모,<br />
+      그리고 매일의 작은 생각들을 여기에 쌓아갑니다.
+    </p>
+    <div class="hero-actions">
+      <a class="btn-primary" href="travel/index.html">여행 일기 보기 →</a>
+      <a class="btn-secondary" href="dev/index.html">개발 기록 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- SECTIONS -->
+<section class="sections">
+  <div class="sections-header reveal">
+    <p class="eyebrow">✦ Categories</p>
+    <h2 class="sec-title">카테고리</h2>
+  </div>
+  <div class="sections-grid">
+
+    <a class="section-card travel reveal" href="travel/index.html">
+      <div class="card-icon">✈️</div>
+      <div>
+        <p class="card-category">Travel</p>
+        <h3 class="card-name">여행 일기</h3>
+      </div>
+      <p class="card-desc">다녀온 나라, 머문 도시, 먹은 것들, 느낀 것들. 사진과 함께 기록하는 여행의 모든 순간.</p>
+      <div class="card-count">
+        <span>2개 여행 · 77장의 사진</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="section-card dev reveal" href="dev/index.html">
+      <div class="card-icon">💻</div>
+      <div>
+        <p class="card-category">Dev Log</p>
+        <h3 class="card-name">개발 기록</h3>
+      </div>
+      <p class="card-desc">만든 것, 배운 것, 삽질한 것. 프로젝트 기록과 기술 메모를 쌓아두는 공간.</p>
+      <div class="card-count">
+        <span>곧 시작 예정</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="section-card diary reveal" href="diary/index.html">
+      <div class="card-icon">📝</div>
+      <div>
+        <p class="card-category">Diary</p>
+        <h3 class="card-name">일기</h3>
+      </div>
+      <p class="card-desc">별거 없는 하루, 별거 있는 하루. 지나가는 생각들을 흘려보내지 않기 위해 쓰는 기록.</p>
+      <div class="card-count">
+        <span>1개 일기 · 25장의 사진</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- RECENT -->
+<section class="recent">
+  <div class="recent-header reveal">
+    <div>
+      <p class="eyebrow">✦ Recent</p>
+      <h2 class="sec-title">최근 기록</h2>
+    </div>
+  </div>
+  <div class="recent-list reveal">
+
+    <a class="recent-item travel" href="travel/france/index.html">
+      <div class="recent-dot"></div>
+      <div class="recent-meta">🇫🇷 France</div>
+      <div class="recent-text">
+        <div class="recent-title">파리 — 웨딩 스냅 촬영 여행</div>
+        <div class="recent-sub">에펠탑 아래, 센 강 다리 위, 루프탑에서 · 50장의 사진</div>
+      </div>
+      <span class="recent-tag">여행</span>
+      <span class="recent-arrow">→</span>
+    </a>
+
+    <a class="recent-item diary" href="diary/wedding/index.html">
+      <div class="recent-dot"></div>
+      <div class="recent-meta">💍 Wedding</div>
+      <div class="recent-text">
+        <div class="recent-title">웨딩 촬영 일기</div>
+        <div class="recent-sub">스튜디오, 야외 정원 · 25장의 사진</div>
+      </div>
+      <span class="recent-tag">일기</span>
+      <span class="recent-arrow">→</span>
+    </a>
+
+    <a class="recent-item travel" href="travel/switzerland/index.html">
+      <div class="recent-dot"></div>
+      <div class="recent-meta">🇨🇭 Switzerland</div>
+      <div class="recent-text">
+        <div class="recent-title">스위스 · 인터라켄 & 그린델발트 & 융프라우요흐</div>
+        <div class="recent-sub">해발 3,454m, 유럽의 정상에 서다 · 27장의 사진</div>
+      </div>
+      <span class="recent-tag">여행</span>
+      <span class="recent-arrow">→</span>
+    </a>
+
+    <div class="recent-item dev" style="opacity:0.4; pointer-events:none;">
+      <div class="recent-dot"></div>
+      <div class="recent-meta">Coming soon</div>
+      <div class="recent-text">
+        <div class="recent-title">개발 기록이 곧 추가됩니다</div>
+        <div class="recent-sub">프로젝트, 학습, TIL 등</div>
+      </div>
+      <span class="recent-tag">개발</span>
+    </div>
+
+    <div class="recent-item diary" style="opacity:0.4; pointer-events:none;">
+      <div class="recent-dot"></div>
+      <div class="recent-meta">Coming soon</div>
+      <div class="recent-text">
+        <div class="recent-title">일기가 곧 추가됩니다</div>
+        <div class="recent-sub">일상, 생각, 감정 등</div>
+      </div>
+      <span class="recent-tag">일기</span>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">MY<span>.</span>BLOG</div>
+  <div class="footer-text">여행 · 개발 · 일상의 기록</div>
+</footer>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

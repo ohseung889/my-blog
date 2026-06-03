@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>파리 여행 일기 — MY.BLOG</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0a0c0f; --surface: #13161a; --surface2: #1a1e24;
+      --border: #252a32; --text: #eef0f3; --muted: #7a8494;
+      --accent: #f0c090; --accent2: #d4a070;
+      --tag-bg: #1a1308; --radius: 14px;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; line-height: 1.6; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: rgba(10,12,15,0.88); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-back { font-size: 0.78rem; color: var(--muted); text-decoration: none; letter-spacing: 0.06em; transition: color 0.2s; }
+    .nav-back:hover { color: var(--text); }
+    .nav-links { display: flex; gap: 20px; list-style: none; }
+    .nav-links a { font-size: 0.83rem; color: var(--muted); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-travel { color: var(--accent) !important; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 56px 88px;
+    }
+    .hero-photo {
+      position: absolute; inset: 0;
+      background: url('images/DSC01549.JPG') center/cover no-repeat;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.1) 0%, rgba(10,12,15,0.25) 40%, rgba(10,12,15,0.88) 80%, rgba(10,12,15,0.97) 100%);
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-eyebrow { font-size: 0.72rem; letter-spacing: 0.22em; color: var(--accent); text-transform: uppercase; margin-bottom: 18px; }
+    .hero-title { font-size: clamp(2.8rem, 6vw, 5.5rem); font-weight: 900; line-height: 1.07; letter-spacing: -0.03em; max-width: 760px; margin-bottom: 22px; }
+    .hero-title em { font-style: normal; color: var(--accent); }
+    .hero-desc { font-size: 1.05rem; color: var(--muted); max-width: 460px; margin-bottom: 38px; line-height: 1.85; }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: var(--accent); color: #0d0804;
+      padding: 12px 24px; border-radius: 999px;
+      font-size: 0.88rem; font-weight: 800; text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .hero-cta:hover { background: var(--accent2); transform: translateY(-2px); }
+    .hero-stats {
+      position: absolute; right: 56px; bottom: 88px;
+      display: flex; flex-direction: column; gap: 28px; text-align: right; z-index: 1;
+    }
+    .stat-num { font-size: 2.4rem; font-weight: 900; color: var(--accent); line-height: 1; }
+    .stat-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    section { padding: 96px 56px; }
+    .section-eyebrow { font-size: 0.7rem; letter-spacing: 0.22em; color: var(--accent); text-transform: uppercase; margin-bottom: 14px; }
+    .section-title { font-size: clamp(1.7rem, 3vw, 2.5rem); font-weight: 900; letter-spacing: -0.025em; margin-bottom: 48px; }
+
+    /* FEATURED */
+    #featured { background: var(--surface); }
+    .featured-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 3px; border-radius: var(--radius); overflow: hidden; }
+    .featured-main {
+      background: var(--surface2); padding: 48px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      min-height: 480px; position: relative; cursor: pointer; transition: filter 0.2s;
+    }
+    .featured-main:hover { filter: brightness(1.08); }
+    .featured-main .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.05) 0%, rgba(10,12,15,0.88) 100%),
+                  url('images/DSC01316_%EC%88%98%ED%8F%89%20%EC%A1%B0%EC%A0%88%20%ED%95%84%EC%9A%94(%EC%B0%B8%EA%B3%A0%EC%82%AC%EC%A7%84).jpeg') center/cover;
+    }
+    .featured-main .bg-fallback {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.05) 0%, rgba(10,12,15,0.88) 100%),
+                  url('images/DSC01377.JPG') center/cover;
+    }
+    .featured-main .content { position: relative; z-index: 1; }
+    .featured-side { display: flex; flex-direction: column; gap: 3px; }
+    .side-card {
+      background: var(--surface2); padding: 32px 36px;
+      flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
+      position: relative; cursor: pointer; overflow: hidden; transition: filter 0.2s;
+    }
+    .side-card:hover { filter: brightness(1.08); }
+    .side-card .content { position: relative; z-index: 1; }
+    .side-card:first-child .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.05) 0%, rgba(10,12,15,0.88) 100%),
+                  url('images/DSC01339.JPG') center/cover;
+    }
+    .side-card:last-child .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.05) 0%, rgba(10,12,15,0.88) 100%),
+                  url('images/DSC01707.JPG') center/cover;
+    }
+
+    .entry-tag {
+      display: inline-block; background: var(--tag-bg);
+      border: 1px solid rgba(240,192,144,0.3); color: var(--accent);
+      font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px; margin-bottom: 12px;
+    }
+    .entry-date { font-size: 0.73rem; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 7px; }
+    .entry-title { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 10px; }
+    .side-card .entry-title { font-size: 1.0rem; }
+    .entry-excerpt { font-size: 0.87rem; color: var(--muted); line-height: 1.72; }
+    .entry-meta { display: flex; align-items: center; gap: 12px; margin-top: 16px; font-size: 0.76rem; color: var(--muted); flex-wrap: wrap; }
+
+    /* ENTRIES */
+    #entries { background: var(--bg); }
+    .entries-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .entry-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .entry-card:hover { border-color: rgba(240,192,144,0.4); transform: translateY(-5px); }
+    .card-thumb { width: 100%; height: 200px; object-fit: cover; display: block; background: var(--surface2); }
+    .card-body { padding: 24px; }
+    .card-body .entry-title { font-size: 1rem; margin-bottom: 8px; }
+    .card-body .entry-excerpt { font-size: 0.81rem; }
+    .mood { font-size: 0.71rem; color: var(--muted); margin-top: 12px; }
+
+    /* GALLERY */
+    #gallery { background: var(--surface); }
+    .gallery-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 210px; gap: 5px;
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .gallery-item { overflow: hidden; cursor: pointer; position: relative; }
+    .gallery-item:first-child { grid-column: span 2; grid-row: span 2; }
+    .gallery-item:nth-child(5) { grid-column: span 2; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s; }
+    .gallery-item:hover img { transform: scale(1.06); }
+    .gallery-item .ov { position: absolute; inset: 0; background: rgba(10,12,15,0); transition: background 0.3s; }
+    .gallery-item:hover .ov { background: rgba(10,12,15,0.25); }
+    .gallery-more { margin-top: 20px; text-align: center; }
+    .gallery-more button {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      padding: 10px 24px; border-radius: 999px; font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+    }
+    .gallery-more button:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* QUOTE */
+    .quote-section {
+      padding: 96px 56px; background: var(--bg); text-align: center;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .quote-mark { font-size: 4rem; color: var(--accent); line-height: 0.6; margin-bottom: 22px; font-family: Georgia, serif; }
+    .quote-text { font-size: clamp(1.3rem, 2.2vw, 1.8rem); font-weight: 800; letter-spacing: -0.02em; max-width: 640px; margin: 0 auto 16px; line-height: 1.45; }
+    .quote-src { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.1em; }
+
+    footer {
+      padding: 48px 56px; background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo { font-size: 0.9rem; font-weight: 800; color: var(--accent); letter-spacing: 0.08em; }
+    .footer-text { font-size: 0.77rem; color: var(--muted); }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.9); backdrop-filter: blur(12px);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; width: 100%; max-width: 820px; max-height: 90vh; overflow-y: auto; position: relative;
+    }
+    .modal-close {
+      position: sticky; top: 12px; float: right; margin: 12px 16px 0 0;
+      background: var(--surface2); border: none; color: var(--muted);
+      width: 36px; height: 36px; border-radius: 50%; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s; z-index: 10;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-hero { width: 100%; height: 320px; object-fit: cover; display: block; border-radius: 20px 20px 0 0; }
+    .modal-bwrap { padding: 36px 44px 44px; }
+    .modal-date { font-size: 0.77rem; color: var(--muted); margin-bottom: 12px; letter-spacing: 0.06em; }
+    .modal-title { font-size: 1.65rem; font-weight: 900; letter-spacing: -0.025em; margin-bottom: 22px; }
+    .modal-divider { border: none; border-top: 1px solid var(--border); margin-bottom: 24px; }
+    .modal-text { font-size: 0.92rem; line-height: 1.9; color: #c0c8d4; }
+    .modal-text p { margin-bottom: 16px; }
+    .modal-photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 28px; border-radius: 8px; overflow: hidden; }
+    .modal-photos img { width: 100%; height: 100px; object-fit: cover; cursor: pointer; transition: opacity 0.2s; }
+    .modal-photos img:hover { opacity: 0.8; }
+    .modal-footer-meta { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 16px; font-size: 0.76rem; color: var(--muted); flex-wrap: wrap; }
+
+    /* LIGHTBOX */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.97); align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 92vw; max-height: 90vh; object-fit: contain; border-radius: 6px; }
+    .lb-close { position: absolute; top: 20px; right: 24px; background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .lb-prev, .lb-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.12); border: none; color: white;
+      width: 48px; height: 48px; border-radius: 50%; font-size: 1.3rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;
+    }
+    .lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,0.25); }
+    .lb-prev { left: 20px; } .lb-next { right: 20px; }
+    .lb-count { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); font-size: 0.8rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; }
+
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; height: 56px; }
+      .nav-links { gap: 4px; }
+      .nav-links a { font-size: 0.72rem; padding: 4px 8px; }
+      .hero { padding: 0 20px 56px; }
+      .hero-stats { display: none; }
+      section { padding: 56px 20px; }
+      .featured-grid { grid-template-columns: 1fr; }
+      .featured-main { min-height: 300px; padding: 28px; }
+      .featured-side { flex-direction: column; }
+      .side-card { min-height: 200px; padding: 24px; }
+      .entries-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 150px; }
+      .gallery-item:first-child { grid-column: span 1; grid-row: span 1; }
+      .gallery-item:nth-child(5) { grid-column: span 1; }
+      .quote-section { padding: 56px 20px; }
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal { border-radius: 20px 20px 0 0; max-height: 90vh; }
+      .modal-hero { height: 220px; border-radius: 20px 20px 0 0; }
+      .modal-bwrap { padding: 24px 20px 32px; }
+      .modal-photos { grid-template-columns: repeat(3, 1fr); }
+      .modal-photos img { height: 80px; }
+      footer { padding: 28px 20px; flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="../../index.html">← MY.BLOG</a>
+  <ul class="nav-links">
+    <li><a href="#featured">하이라이트</a></li>
+    <li><a href="#entries">일기</a></li>
+    <li><a href="#gallery">사진첩</a></li>
+    <li><a href="../index.html" class="nav-travel">✈️ 여행 목록</a></li>
+  </ul>
+</nav>
+
+<section class="hero" id="home">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">🇫🇷 France · Paris</p>
+    <h1 class="hero-title">
+      파리에서,<br /><em>우리만의 시간</em>
+    </h1>
+    <p class="hero-desc">
+      에펠탑 아래에서, 센 강 다리 위에서, 루프탑에서.<br />
+      우리가 가장 아름다웠던 순간들을 파리에 남겼다.
+    </p>
+    <a class="hero-cta" href="#featured">일기 읽기 →</a>
+  </div>
+  <div class="hero-stats">
+    <div><div class="stat-num">3</div><div class="stat-label">Days</div></div>
+    <div><div class="stat-num">50</div><div class="stat-label">Photos</div></div>
+    <div><div class="stat-num">1</div><div class="stat-label">City</div></div>
+  </div>
+</section>
+
+<section id="featured">
+  <p class="section-eyebrow reveal">✦ Highlights</p>
+  <h2 class="section-title reveal">파리의 하이라이트</h2>
+  <div class="featured-grid reveal">
+    <div class="featured-main" onclick="openModal('street')">
+      <div class="bg-fallback"></div>
+      <div class="bg"></div>
+      <div class="content">
+        <span class="entry-tag">🗼 에펠탑 거리</span>
+        <p class="entry-date">Paris · Rue de Monttessuy</p>
+        <h3 class="entry-title">에펠탑이 보이는 골목에서</h3>
+        <p class="entry-excerpt">파리의 골목 어딘가, 에펠탑이 정면으로 보이는 그 길. 꽃다발을 들고 손을 잡고 서 있는 우리가 낯설게 느껴졌다. 좋은 의미로.</p>
+        <div class="entry-meta"><span>📍 에펠탑 주변</span><span>🌸 꽃다발</span><span>🤍 설렘</span></div>
+      </div>
+    </div>
+    <div class="featured-side">
+      <div class="side-card" onclick="openModal('tower')">
+        <div class="bg"></div>
+        <div class="content">
+          <span class="entry-tag">🗼 에펠탑 아래</span>
+          <p class="entry-date">Champ de Mars · Tour Eiffel</p>
+          <h3 class="entry-title">에펠탑 바로 아래에서</h3>
+          <p class="entry-excerpt">이렇게 가까이서 올려다본 에펠탑은 처음이었다.</p>
+        </div>
+      </div>
+      <div class="side-card" onclick="openModal('rooftop')">
+        <div class="bg"></div>
+        <div class="content">
+          <span class="entry-tag">🌇 루프탑</span>
+          <p class="entry-date">Paris Rooftop · Vue sur la Tour</p>
+          <h3 class="entry-title">루프탑에서 바라본 에펠탑</h3>
+          <p class="entry-excerpt">유리 난간 너머로, 에펠탑이 그대로 펼쳐졌다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="entries">
+  <p class="section-eyebrow reveal">✦ Travel Diary</p>
+  <h2 class="section-title reveal">여행 일기</h2>
+  <div class="entries-grid">
+    <div class="entry-card reveal" onclick="openModal('arrival')">
+      <img class="card-thumb" src="images/1DA5F9F8-CCA8-4C39-B1F0-1D709E9ED080_1_105_c.jpeg" alt="CDG 공항" />
+      <div class="card-body">
+        <span class="entry-tag">✈️ 도착</span>
+        <p class="entry-date">Charles de Gaulle Airport</p>
+        <h3 class="entry-title">파리, 드디어</h3>
+        <p class="entry-excerpt">CDG 공항 터미널 2A. 수하물을 끌고 나오는 그 순간부터 이미 파리였다.</p>
+        <div class="mood">😊 설렘 · ✈️ 장거리 비행 후</div>
+      </div>
+    </div>
+    <div class="entry-card reveal" onclick="openModal('street')">
+      <img class="card-thumb" src="images/DSC01149.JPG" alt="에펠탑 거리" />
+      <div class="card-body">
+        <span class="entry-tag">🗼 에펠탑 골목</span>
+        <p class="entry-date">Rue de Monttessuy · Paris</p>
+        <h3 class="entry-title">에펠탑이 보이는 그 골목</h3>
+        <p class="entry-excerpt">드레스를 입고 수트를 입고, 꽃다발을 들고 서 있는 우리. 어색하면서도 행복했다.</p>
+        <div class="mood">🌸 행복 · ☁️ 흐림</div>
+      </div>
+    </div>
+    <div class="entry-card reveal" onclick="openModal('tower')">
+      <img class="card-thumb" src="images/DSC01377.JPG" alt="에펠탑" />
+      <div class="card-body">
+        <span class="entry-tag">🗼 에펠탑</span>
+        <p class="entry-date">Tour Eiffel · Champ de Mars</p>
+        <h3 class="entry-title">에펠탑, 직접 보면 더 크다</h3>
+        <p class="entry-excerpt">사진으로만 보던 에펠탑 바로 아래. 철골 구조물이 이렇게 아름다울 수 있다는 걸 처음 알았다.</p>
+        <div class="mood">🤩 감탄 · ⛅ 흐리고 맑음</div>
+      </div>
+    </div>
+    <div class="entry-card reveal" onclick="openModal('bridge')">
+      <img class="card-thumb" src="images/DSC01549.JPG" alt="다리" />
+      <div class="card-body">
+        <span class="entry-tag">🌉 센 강 다리</span>
+        <p class="entry-date">Pont d'Iéna · Seine River</p>
+        <h3 class="entry-title">다리 위에서, 그녀가 날 바라봤다</h3>
+        <p class="entry-excerpt">에펠탑을 배경으로 한 이 사진 한 장. 이번 파리 여행에서 제일 좋아하는 컷이 됐다.</p>
+        <div class="mood">🥹 감동 · 🌬 선선함</div>
+      </div>
+    </div>
+    <div class="entry-card reveal" onclick="openModal('rooftop')">
+      <img class="card-thumb" src="images/DSC01707.JPG" alt="루프탑" />
+      <div class="card-body">
+        <span class="entry-tag">🌇 루프탑</span>
+        <p class="entry-date">Rooftop · Vue sur Paris</p>
+        <h3 class="entry-title">유리 난간 너머의 에펠탑</h3>
+        <p class="entry-excerpt">건물 루프탑에서 에펠탑이 정면으로 보이는 자리. 이 뷰를 배경으로 찍은 사진들이 가장 영화 같았다.</p>
+        <div class="mood">🎬 영화 같은 · ☀️ 맑음</div>
+      </div>
+    </div>
+    <div class="entry-card reveal" onclick="openModal('picnic')">
+      <img class="card-thumb" src="images/0318F297-83B5-478E-A307-A4E7C8E0C814_1_105_c.jpeg" alt="샹드마르 피크닉" />
+      <div class="card-body">
+        <span class="entry-tag">🧺 샹드마르</span>
+        <p class="entry-date">Champ de Mars · Picnic</p>
+        <h3 class="entry-title">잔디밭 피크닉과 하얀 강아지</h3>
+        <p class="entry-excerpt">에펠탑 앞 잔디에 돗자리를 펼쳤다. 옆에서 하얀 강아지가 다가왔다. 파리에서 가장 여유로운 순간.</p>
+        <div class="mood">☺️ 여유 · ☀️ 맑음</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <p class="section-eyebrow reveal">✦ Photo Gallery</p>
+  <h2 class="section-title reveal">사진첩</h2>
+  <div class="gallery-grid reveal">
+    <div class="gallery-item" onclick="openLightbox(0)"><img src="images/DSC01377.JPG" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(1)"><img src="images/DSC01149.JPG" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(2)"><img src="images/DSC01549.JPG" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(3)"><img src="images/DSC01339.JPG" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(4)"><img src="images/DSC01265.JPG" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(5)"><img src="images/DSC01287.JPG" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(6)"><img src="images/DSC01707.JPG" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(7)"><img src="images/0318F297-83B5-478E-A307-A4E7C8E0C814_1_105_c.jpeg" alt="" /><div class="ov"></div></div>
+    <div class="gallery-item" onclick="openLightbox(8)"><img src="images/1DA5F9F8-CCA8-4C39-B1F0-1D709E9ED080_1_105_c.jpeg" alt="" /><div class="ov"></div></div>
+  </div>
+  <div class="gallery-more reveal"><button onclick="openLightbox(0)">전체 사진 보기 (50장) →</button></div>
+</section>
+
+<div class="quote-section">
+  <div class="quote-mark">"</div>
+  <p class="quote-text">파리는 항상 좋은 생각이다.</p>
+  <p class="quote-src">— Audrey Hepburn, Sabrina (1954)</p>
+</div>
+
+<footer>
+  <div class="footer-logo">🇫🇷 PARIS DIARY</div>
+  <div class="footer-text">파리 · 에펠탑 · 웨딩 스냅</div>
+</footer>
+
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal"><button class="modal-close" onclick="closeModal()">✕</button><div id="modal-inner"></div></div>
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLbBg(event)">
+  <button class="lb-close" onclick="closeLb()">✕</button>
+  <button class="lb-prev" onclick="lbNav(-1)">‹</button>
+  <img id="lb-img" src="" alt="" />
+  <button class="lb-next" onclick="lbNav(1)">›</button>
+  <div class="lb-count" id="lb-count"></div>
+</div>
+
+<script>
+const allPhotos = [
+  'images/DSC01377.JPG','images/DSC01149.JPG','images/DSC01549.JPG','images/DSC01339.JPG',
+  'images/DSC01265.JPG','images/DSC01287.JPG','images/DSC01707.JPG',
+  'images/0318F297-83B5-478E-A307-A4E7C8E0C814_1_105_c.jpeg',
+  'images/1DA5F9F8-CCA8-4C39-B1F0-1D709E9ED080_1_105_c.jpeg',
+  'images/0AB95221-DCB4-476F-AAD6-F6C320553C2F_1_105_c.jpeg',
+  'images/0F551F91-E7A0-411A-A258-C6156252581A_1_105_c.jpeg',
+  'images/0F7DBC8D-E7E4-444D-A937-0CEC560748DA_1_105_c.jpeg',
+  'images/19E574F1-CB94-473E-B4EB-B20F5B0E43C6_1_105_c.jpeg',
+  'images/21E77FF6-E773-42E8-A439-241DAEAE952A_1_105_c.jpeg',
+  'images/24271B39-F328-4AF9-95C6-98BFE0B73958_1_105_c.jpeg',
+  'images/2E93EA0D-096F-4A7C-9C26-894CE722C093_1_105_c.jpeg',
+  'images/2EBC7E64-4510-44D5-AA63-6BB782CAB89B_1_105_c.jpeg',
+  'images/3626501F-88A6-4431-9389-5C1809212946_1_105_c.jpeg',
+  'images/3D632465-2A93-4835-A9A8-65D8088B0A94_1_105_c.jpeg',
+  'images/436F81F9-9E11-44E3-A5B2-31BC54DBD063_1_105_c.jpeg',
+  'images/445C7796-ACDD-4A78-A0A7-209CD24E763F_1_105_c.jpeg',
+  'images/49E67A90-C926-4C0B-B6C6-B7471CCB97DD_1_105_c.jpeg',
+  'images/4F627007-E3B9-45BD-B86D-2A39C564C522_1_105_c.jpeg',
+  'images/5C41D03B-4E38-45B4-AD16-CCF175741B0A_1_105_c.jpeg',
+  'images/638F511B-8262-48F6-AF8F-9C69FA8CBC7D_1_105_c.jpeg',
+  'images/6ABCA8DB-4160-4384-B316-503A105C54B7_1_105_c.jpeg',
+  'images/74DF4F66-C320-471C-A3D8-40A53BB67579_1_105_c.jpeg',
+  'images/7D5D3F36-2E56-4021-A55B-3666416123A8_1_105_c.jpeg',
+  'images/7F02060B-CCBB-4C31-84E3-83C1744DC743_1_105_c.jpeg',
+  'images/883C22EF-D2E3-43F2-A4DB-4704DCBD3D75_1_105_c.jpeg',
+  'images/95A5F3A8-1AAD-48B0-A284-6A38B7AB5EF9_1_105_c.jpeg',
+  'images/96411E41-07B4-4A64-8A72-984710F7E28E_1_105_c.jpeg',
+  'images/9ADB37F6-27D5-4541-A612-888F46D58C7C_1_105_c.jpeg',
+  'images/9E992DBE-7F93-42E5-9A62-2412DCCB0C27_1_105_c.jpeg',
+  'images/A4814559-C99E-48F1-8ECC-04AD5201D67D_1_105_c.jpeg',
+  'images/B2E4B6BA-9C07-45CE-93B1-E66E81849351_1_105_c.jpeg',
+  'images/C797C147-E61B-4DEC-A32D-0AD1B75AA692_1_105_c.jpeg',
+  'images/CAA3F5A2-354B-4065-84C1-F8DCEC6C1F28_1_105_c.jpeg',
+  'images/CBA709D2-7B37-4725-9660-2EA8F76B214F_1_105_c.jpeg',
+  'images/CBBA3942-503C-4F3E-9F03-96F449719AD1_1_105_c.jpeg',
+  'images/F3AC7554-6F06-40AC-A761-4E89DCAFCCAA_1_105_c.jpeg',
+  'images/F669C24D-5825-4146-9D5D-26D8E463ED70_1_105_c.jpeg',
+  'images/F741D8EA-13F2-4797-861C-C08EBB192AF1_1_105_c.jpeg',
+  'images/F871A547-D5A6-4171-A3B2-ED1BC8E2A216_1_105_c.jpeg',
+  'images/F8F98F1D-E526-4835-9B7A-678DFB260593_1_105_c.jpeg',
+  'images/FB961A67-F30F-4931-831A-9839129D2631_1_105_c.jpeg',
+  'images/FBD860FE-4024-4896-9D73-AF6F2DDD7C7D_1_105_c.jpeg',
+];
+
+const entries = {
+  arrival: {
+    heroImg: 'images/1DA5F9F8-CCA8-4C39-B1F0-1D709E9ED080_1_105_c.jpeg',
+    tag: '✈️ 파리 도착', title: '파리, 드디어',
+    body: `<p>비행기에서 내린 건 오전이었다. CDG 공항 터미널 2A, 2C 사인이 보이는 무빙워크를 걷는데 실감이 났다. 파리에 있다.</p>
+    <p>수하물을 찾고 공항을 빠져나오는 데 한 시간이 넘게 걸렸다. 택시를 타고 시내로 들어가는 길, 창밖으로 파리의 건물들이 지나갔다. 회색빛 하늘 아래 오래된 석조 건물들.</p>
+    <p>호텔에 짐을 풀고 나서야 비로소 숨을 내쉬었다. 이제 파리다.</p>`,
+    photos: ['images/1DA5F9F8-CCA8-4C39-B1F0-1D709E9ED080_1_105_c.jpeg'],
+    meta: ['📍 CDG Terminal 2A', '✈️ 장거리 비행', '😊 설렘']
+  },
+  street: {
+    heroImg: 'images/DSC01377.JPG',
+    tag: '🗼 에펠탑 골목', title: '에펠탑이 보이는 그 골목에서',
+    body: `<p>에펠탑 근처 골목 어딘가. 검색하면 나오는 그 유명한 앵글. 에펠탑이 건물 사이로 정면으로 보이는 이 길을 찾는 데 꽤 걸렸다.</p>
+    <p>드레스를 입고, 수트를 차려입고, 꽃다발을 들었다. 지나가는 파리 사람들이 흘낏 쳐다봤지만 개의치 않았다. 우리는 우리의 시간 안에 있었다.</p>
+    <p>웃으면서, 어색하게 포즈를 잡으면서, 또 진짜 웃음이 나오면서. 사진 찍히는 게 어색한데도 이날만큼은 카메라 앞이 편안했다.</p>
+    <p>핑크빛 꽃을 쥔 그녀의 손, 에펠탑, 파리의 가로수. 이 장면들이 전부 사진 안에 담겼다.</p>`,
+    photos: ['images/DSC01149.JPG','images/DSC01265.JPG','images/DSC01287.JPG','images/DSC01377.JPG'],
+    meta: ['📍 Rue de Monttessuy', '🌸 꽃다발', '📸 웨딩 스냅', '☁️ 흐림']
+  },
+  tower: {
+    heroImg: 'images/DSC01339.JPG',
+    tag: '🗼 에펠탑 아래', title: '에펠탑, 직접 보면 더 크다',
+    body: `<p>에펠탑 아래에 서면 올려다보게 된다. 철골 구조물이 하늘을 향해 뻗어 있다. 이렇게 가까이서 본 건 처음이었다.</p>
+    <p>거대한 아치 아래에서 포즈를 잡았다. 뒤로 에펠탑 전체가 들어오는 구도. 카메라맨이 여러 컷을 찍어줬다.</p>
+    <p>수많은 관광객 속에서도 우리만의 세계가 있는 것 같았다. 에펠탑을 올려다보며 나란히 서 있는 것만으로도 충분했다.</p>`,
+    photos: ['images/DSC01339.JPG','images/DSC01377.JPG'],
+    meta: ['📍 Tour Eiffel', '🗼 에펠탑 아래', '🤩 압도']
+  },
+  bridge: {
+    heroImg: 'images/DSC01549.JPG',
+    tag: '🌉 센 강 다리', title: '다리 위에서, 그녀가 날 바라봤다',
+    body: `<p>에펠탑 옆을 흐르는 센 강 다리 위. 강바람이 불었다. 에펠탑이 다리 끝에서 그대로 보였다.</p>
+    <p>그녀가 나를 바라보는 그 순간. 카메라맨이 포착한 그 컷 하나가 이번 파리 여행 전체를 담고 있는 것 같다.</p>
+    <p>파리에 오기 잘했다. 이 사진 한 장을 남기기 위해 먼 길을 날아온 것 같은 기분.</p>`,
+    photos: ['images/DSC01549.JPG'],
+    meta: ['📍 Pont d\'Iéna', '🌬 선선한 바람', '🥹 감동']
+  },
+  rooftop: {
+    heroImg: 'images/DSC01707.JPG',
+    tag: '🌇 루프탑', title: '유리 난간 너머의 에펠탑',
+    body: `<p>어느 건물의 루프탑. 유리 난간 너머로 에펠탑이 그대로 보이는 자리였다. 처음 올라갔을 때 "와" 소리가 절로 나왔다.</p>
+    <p>이 뷰를 배경으로 찍은 사진들이 가장 영화 같았다. 도시 전체가 내려다보이는 곳에서 우리 둘만 있는 것 같은 느낌.</p>
+    <p>흑백으로 찍은 컷은 또 다른 분위기였다. 선글라스를 쓰고 나란히 서 있는 우리. 시간이 지나도 좋아할 것 같은 사진.</p>`,
+    photos: ['images/DSC01707.JPG','images/DSC01671_%ED%9D%91%EB%B0%B1.JPG'],
+    meta: ['📍 Paris Rooftop', '🌆 파리 전경', '🎬 영화 같은']
+  },
+  picnic: {
+    heroImg: 'images/0318F297-83B5-478E-A307-A4E7C8E0C814_1_105_c.jpeg',
+    tag: '🧺 샹드마르 피크닉', title: '잔디밭 피크닉과 하얀 강아지',
+    body: `<p>에펠탑 앞 샹드마르 공원. 돗자리를 빌려 잔디밭에 앉았다. 파리에서 산 치즈와 빵, 와인.</p>
+    <p>옆자리에서 하얀 강아지를 데리고 온 가족이 있었다. 강아지가 우리 쪽으로 다가왔다. 잠시 같이 놀았다.</p>
+    <p>에펠탑을 바라보며 누워 있는데 아무 생각이 없어졌다. 파리에서 가장 여유로운 시간이었다. 이것도 파리다.</p>`,
+    photos: ['images/0318F297-83B5-478E-A307-A4E7C8E0C814_1_105_c.jpeg'],
+    meta: ['📍 Champ de Mars', '🧺 피크닉', '🐶 강아지', '☀️ 맑음']
+  }
+};
+
+function openModal(id) {
+  const e = entries[id]; if (!e) return;
+  const photosHtml = e.photos.map(p => `<img src="${p}" onclick="openLbFromSrc('${p}')" />`).join('');
+  document.getElementById('modal-inner').innerHTML = `
+    <img class="modal-hero" src="${e.heroImg}" />
+    <div class="modal-bwrap">
+      <span class="entry-tag">${e.tag}</span>
+      <h2 class="modal-title">${e.title}</h2>
+      <hr class="modal-divider"/>
+      <div class="modal-text">${e.body}</div>
+      <div class="modal-photos">${photosHtml}</div>
+      <div class="modal-footer-meta">${e.meta.map(m=>`<span>${m}</span>`).join('')}</div>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow = ''; }
+function handleOverlayClick(e) { if (e.target===document.getElementById('modal')) closeModal(); }
+
+let lbIdx = 0;
+function openLightbox(i) { lbIdx=i; document.getElementById('lb-img').src=allPhotos[i]; document.getElementById('lb-count').textContent=`${i+1} / ${allPhotos.length}`; document.getElementById('lightbox').classList.add('open'); document.body.style.overflow='hidden'; }
+function openLbFromSrc(src) { const i=allPhotos.indexOf(src); openLightbox(i>=0?i:0); }
+function closeLb() { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow=''; }
+function closeLbBg(e) { if (e.target===document.getElementById('lightbox')) closeLb(); }
+function lbNav(d) { lbIdx=(lbIdx+d+allPhotos.length)%allPhotos.length; document.getElementById('lb-img').src=allPhotos[lbIdx]; document.getElementById('lb-count').textContent=`${lbIdx+1} / ${allPhotos.length}`; }
+document.addEventListener('keydown', e => { if (e.key==='Escape'){closeLb();closeModal();} if(e.key==='ArrowRight')lbNav(1); if(e.key==='ArrowLeft')lbNav(-1); });
+const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

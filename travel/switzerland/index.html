@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스위스 여행 일기 — Alps Diary</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0c0f;
+      --surface: #13161a;
+      --surface2: #1a1e24;
+      --border: #252a32;
+      --text: #eef0f3;
+      --muted: #7a8494;
+      --accent: #6cb8f5;
+      --accent2: #4a9de0;
+      --tag-bg: #0e1520;
+      --radius: 14px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 64px;
+      background: rgba(10,12,15,0.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: 1rem; font-weight: 800; letter-spacing: 0.1em;
+      color: var(--accent); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      font-size: 0.83rem; color: var(--muted); text-decoration: none;
+      letter-spacing: 0.04em; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 56px 88px;
+    }
+    .hero-photo {
+      position: absolute; inset: 0;
+      background: url('사진/DF5CAD33-BC4C-404E-BE9B-F7253F5D33ED_1_105_c.jpeg') center/cover no-repeat;
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(10,12,15,0.15) 0%,
+        rgba(10,12,15,0.3) 40%,
+        rgba(10,12,15,0.85) 80%,
+        rgba(10,12,15,0.97) 100%
+      );
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.22em; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 18px;
+    }
+    .hero-title {
+      font-size: clamp(3rem, 6.5vw, 6rem); font-weight: 900;
+      line-height: 1.06; letter-spacing: -0.03em; max-width: 820px;
+      margin-bottom: 24px;
+    }
+    .hero-title em { font-style: normal; color: var(--accent); }
+    .hero-desc {
+      font-size: 1.05rem; color: var(--muted); max-width: 480px;
+      margin-bottom: 40px; line-height: 1.85;
+    }
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: var(--accent); color: #050810;
+      padding: 13px 26px; border-radius: 999px;
+      font-size: 0.88rem; font-weight: 800; text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .hero-cta:hover { background: var(--accent2); transform: translateY(-2px); }
+
+    .hero-stats {
+      position: absolute; right: 56px; bottom: 88px;
+      display: flex; flex-direction: column; gap: 30px; text-align: right;
+      z-index: 1;
+    }
+    .stat-num { font-size: 2.6rem; font-weight: 900; color: var(--accent); line-height: 1; }
+    .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; }
+
+    /* ── SECTION COMMON ── */
+    section { padding: 96px 56px; }
+    .section-eyebrow {
+      font-size: 0.7rem; letter-spacing: 0.22em; color: var(--accent);
+      text-transform: uppercase; margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 900;
+      letter-spacing: -0.025em; margin-bottom: 52px;
+    }
+
+    /* ── FEATURED ── */
+    #featured { background: var(--surface); }
+    .featured-grid {
+      display: grid; grid-template-columns: 1.4fr 1fr;
+      gap: 3px; border-radius: var(--radius); overflow: hidden;
+    }
+    .featured-main {
+      background: var(--surface2); padding: 52px;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      min-height: 500px; position: relative; cursor: pointer;
+      transition: brightness 0.2s;
+    }
+    .featured-main:hover { filter: brightness(1.08); }
+    .featured-main .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.1) 0%, rgba(10,12,15,0.88) 100%),
+                  url('사진/55438EE3-6E6C-4C0C-86A5-7C5DAD204D68_1_105_c.jpeg') center/cover;
+    }
+    .featured-main .content { position: relative; z-index: 1; }
+    .featured-side { display: flex; flex-direction: column; gap: 3px; }
+    .side-card {
+      background: var(--surface2); padding: 34px 38px;
+      flex: 1; display: flex; flex-direction: column; justify-content: flex-end;
+      position: relative; cursor: pointer; overflow: hidden;
+      transition: brightness 0.2s;
+    }
+    .side-card:hover { filter: brightness(1.08); }
+    .side-card .content { position: relative; z-index: 1; }
+    .side-card:first-child .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.1) 0%, rgba(10,12,15,0.88) 100%),
+                  url('사진/49E699A9-E321-4038-B569-9ED56615947D_1_105_c.jpeg') center/cover;
+    }
+    .side-card:last-child .bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(10,12,15,0.1) 0%, rgba(10,12,15,0.88) 100%),
+                  url('사진/4A7A5413-28B9-4E37-8F5A-477D886ED289_1_105_c.jpeg') center/cover;
+    }
+
+    /* ── ENTRY CARD COMMON ── */
+    .entry-tag {
+      display: inline-block; background: var(--tag-bg);
+      border: 1px solid rgba(108,184,245,0.3); color: var(--accent);
+      font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 4px; margin-bottom: 12px;
+    }
+    .entry-date { font-size: 0.73rem; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 7px; }
+    .entry-title { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 11px; }
+    .side-card .entry-title { font-size: 1.05rem; }
+    .entry-excerpt { font-size: 0.88rem; color: var(--muted); line-height: 1.72; }
+    .entry-meta { display: flex; align-items: center; gap: 14px; margin-top: 18px; font-size: 0.77rem; color: var(--muted); }
+
+    /* ── ALL ENTRIES ── */
+    #entries { background: var(--bg); }
+    .entries-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .entry-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; cursor: pointer;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .entry-card:hover { border-color: rgba(108,184,245,0.45); transform: translateY(-5px); }
+    .card-thumb {
+      width: 100%; height: 210px; object-fit: cover; display: block;
+      background: var(--surface2);
+    }
+    .card-body { padding: 26px; }
+    .card-body .entry-title { font-size: 1.02rem; margin-bottom: 9px; }
+    .card-body .entry-excerpt { font-size: 0.82rem; }
+    .mood { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; color: var(--muted); margin-top: 14px; }
+
+    /* ── GALLERY ── */
+    #gallery { background: var(--surface); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 220px;
+      gap: 6px;
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .gallery-item {
+      overflow: hidden; cursor: pointer; position: relative;
+    }
+    .gallery-item:first-child { grid-column: span 2; grid-row: span 2; }
+    .gallery-item:nth-child(4) { grid-column: span 2; }
+    .gallery-item img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      transition: transform 0.4s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.06); }
+    .gallery-item .overlay {
+      position: absolute; inset: 0;
+      background: rgba(10,12,15,0);
+      transition: background 0.3s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gallery-item:hover .overlay { background: rgba(10,12,15,0.3); }
+    .gallery-more {
+      margin-top: 24px; text-align: center;
+    }
+    .gallery-more button {
+      background: transparent; border: 1px solid var(--border);
+      color: var(--muted); padding: 10px 24px; border-radius: 999px;
+      font-size: 0.82rem; cursor: pointer; transition: all 0.2s;
+    }
+    .gallery-more button:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── QUOTE ── */
+    .quote-section {
+      padding: 100px 56px; background: var(--bg); text-align: center;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .quote-mark { font-size: 4rem; color: var(--accent); line-height: 0.6; margin-bottom: 22px; font-family: Georgia, serif; }
+    .quote-text {
+      font-size: clamp(1.4rem, 2.3vw, 1.9rem); font-weight: 800;
+      letter-spacing: -0.02em; max-width: 680px; margin: 0 auto 18px; line-height: 1.45;
+    }
+    .quote-src { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.1em; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 52px 56px; background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo { font-size: 0.95rem; font-weight: 800; color: var(--accent); letter-spacing: 0.1em; }
+    .footer-text { font-size: 0.77rem; color: var(--muted); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.9); backdrop-filter: blur(12px);
+      align-items: center; justify-content: center; padding: 24px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; width: 100%; max-width: 860px;
+      max-height: 90vh; overflow-y: auto; position: relative;
+    }
+    .modal-close {
+      position: sticky; top: 12px; float: right; margin: 12px 16px 0 0;
+      background: var(--surface2); border: none; color: var(--muted);
+      width: 36px; height: 36px; border-radius: 50%; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s; z-index: 10;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-hero {
+      width: 100%; height: 340px; object-fit: cover; display: block;
+      border-radius: 20px 20px 0 0;
+    }
+    .modal-body-wrap { padding: 40px 48px 48px; }
+    .modal-tag { margin-bottom: 10px; }
+    .modal-date { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; letter-spacing: 0.06em; }
+    .modal-title { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.025em; margin-bottom: 24px; }
+    .modal-divider { border: none; border-top: 1px solid var(--border); margin-bottom: 26px; }
+    .modal-text { font-size: 0.93rem; line-height: 1.9; color: #c0c8d4; }
+    .modal-text p { margin-bottom: 16px; }
+
+    /* Photo strip in modal */
+    .modal-photos {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 6px; margin-top: 32px; border-radius: 10px; overflow: hidden;
+    }
+    .modal-photos img {
+      width: 100%; height: 110px; object-fit: cover;
+      cursor: pointer; transition: opacity 0.2s;
+    }
+    .modal-photos img:hover { opacity: 0.8; }
+
+    .modal-footer-meta {
+      margin-top: 28px; padding-top: 22px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 18px;
+      font-size: 0.77rem; color: var(--muted);
+    }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.97); align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 92vw; max-height: 90vh; object-fit: contain;
+      border-radius: 8px;
+    }
+    .lightbox-close {
+      position: absolute; top: 20px; right: 24px;
+      background: rgba(255,255,255,0.1); border: none; color: white;
+      width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .lightbox-prev, .lightbox-next {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      background: rgba(255,255,255,0.12); border: none; color: white;
+      width: 48px; height: 48px; border-radius: 50%; font-size: 1.3rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .lightbox-prev:hover, .lightbox-next:hover { background: rgba(255,255,255,0.25); }
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+    .lightbox-count {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      font-size: 0.8rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em;
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 16px; height: 56px; }
+      .nav-links { gap: 4px; }
+      .nav-links a { font-size: 0.72rem; }
+      .hero { padding: 0 20px 56px; }
+      .hero-stats { display: none; }
+      section { padding: 56px 20px; }
+      .featured-grid { grid-template-columns: 1fr; }
+      .featured-main { min-height: 300px; padding: 28px; }
+      .featured-side { flex-direction: column; }
+      .side-card { min-height: 200px; padding: 24px; }
+      .entries-grid { grid-template-columns: 1fr; }
+      #map-section .map-wrap { grid-template-columns: 1fr; gap: 32px; }
+      .gallery-grid { grid-template-columns: repeat(2,1fr); grid-auto-rows: 140px; }
+      .gallery-item:first-child { grid-column: span 1; grid-row: span 1; }
+      .gallery-item:nth-child(4) { grid-column: span 1; }
+      .quote-section { padding: 56px 20px; }
+      .modal-overlay { padding: 0; align-items: flex-end; }
+      .modal { border-radius: 20px 20px 0 0; max-height: 90vh; }
+      .modal-hero { height: 200px; border-radius: 20px 20px 0 0; }
+      .modal-body-wrap { padding: 24px 20px 32px; }
+      .modal-photos { grid-template-columns: repeat(3,1fr); }
+      .modal-photos img { height: 80px; }
+      footer { padding: 28px 20px; flex-direction: column; gap: 6px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="../../index.html" style="color:var(--muted);font-size:0.78rem;letter-spacing:0.06em;">← MY.BLOG</a>
+  <ul class="nav-links">
+    <li><a href="#featured">하이라이트</a></li>
+    <li><a href="#entries">여행 일기</a></li>
+    <li><a href="#gallery">사진첩</a></li>
+    <li><a href="../index.html" style="color:var(--accent);">✈️ 여행 목록</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-photo"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">🇨🇭 Switzerland · Jungfrau Region</p>
+    <h1 class="hero-title">
+      해발 3,454m,<br /><em>유럽의 정상</em>에 서다
+    </h1>
+    <p class="hero-desc">
+      인터라켄에서 그린델발트로, 그리고 융프라우요흐까지.<br />
+      만년설과 에메랄드 호수, 알프스의 모든 것.
+    </p>
+    <a class="hero-cta" href="#featured">일기 읽기 →</a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">5</div>
+      <div class="stat-label">Destinations</div>
+    </div>
+    <div>
+      <div class="stat-num">27</div>
+      <div class="stat-label">Photos</div>
+    </div>
+    <div>
+      <div class="stat-num">3,454</div>
+      <div class="stat-label">Max Altitude (m)</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED -->
+<section id="featured">
+  <p class="section-eyebrow reveal">✦ Highlights</p>
+  <h2 class="section-title reveal">이번 여행의 하이라이트</h2>
+  <div class="featured-grid reveal">
+    <div class="featured-main" onclick="openModal('jungfrau')">
+      <div class="bg"></div>
+      <div class="content">
+        <span class="entry-tag">🇨🇭 융프라우요흐</span>
+        <p class="entry-date">스위스 · Top of Europe · 3,454m</p>
+        <h3 class="entry-title">유럽의 정상에서 두 팔을 벌리다</h3>
+        <p class="entry-excerpt">새파란 하늘 아래 새하얀 빙하 위에 섰다. 영하의 바람이 불었지만 눈물이 날 것 같았다. 여기까지 왔다는 것만으로 충분했다.</p>
+        <div class="entry-meta">
+          <span>📍 Jungfraujoch</span>
+          <span>❄️ -8°C</span>
+          <span>🤩 경이로움</span>
+        </div>
+      </div>
+    </div>
+    <div class="featured-side">
+      <div class="side-card" onclick="openModal('grindelwald')">
+        <div class="bg"></div>
+        <div class="content">
+          <span class="entry-tag">🏔 그린델발트</span>
+          <p class="entry-date">Grindelwald Village</p>
+          <h3 class="entry-title">아이거 아래 동화 같은 마을</h3>
+          <p class="entry-excerpt">어디서 사진을 찍어도 배경이 영화 세트같은 곳.</p>
+        </div>
+      </div>
+      <div class="side-card" onclick="openModal('iseltwald')">
+        <div class="bg"></div>
+        <div class="content">
+          <span class="entry-tag">🏞 이젤트발트</span>
+          <p class="entry-date">Lake Brienz · Iseltwald</p>
+          <h3 class="entry-title">믿을 수 없는 터키석 빛 호수</h3>
+          <p class="entry-excerpt">이 색이 진짜라는 게 믿기지 않았다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIARY ENTRIES -->
+<section id="entries">
+  <p class="section-eyebrow reveal">✦ Travel Diary</p>
+  <h2 class="section-title reveal">여행 일기</h2>
+  <div class="entries-grid">
+
+    <div class="entry-card reveal" onclick="openModal('interlaken')">
+      <img class="card-thumb" src="사진/E4E5CD13-4456-4C51-90F5-1211FE31C869_1_105_c.jpeg" alt="인터라켄 오스트역" />
+      <div class="card-body">
+        <span class="entry-tag">🚉 인터라켄</span>
+        <p class="entry-date">Interlaken Ost</p>
+        <h3 class="entry-title">알프스 여행의 관문, 인터라켄</h3>
+        <p class="entry-excerpt">인터라켄 오스트역에서 내리는 순간 이미 산이 보였다. 여행의 시작.</p>
+        <div class="mood">😊 설렘 · ☀️ 맑음</div>
+      </div>
+    </div>
+
+    <div class="entry-card reveal" onclick="openModal('grindelwald')">
+      <img class="card-thumb" src="사진/FE10026B-4F6C-4B7B-B015-7A717D53DD34_1_105_c.jpeg" alt="그린델발트" />
+      <div class="card-body">
+        <span class="entry-tag">🏔 그린델발트</span>
+        <p class="entry-date">Grindelwald Village</p>
+        <h3 class="entry-title">아이거 북벽 아래 산책</h3>
+        <p class="entry-excerpt">고개만 들면 수직으로 솟은 아이거. 이 마을에 사는 사람들은 매일 이걸 보며 사는구나.</p>
+        <div class="mood">🏔 압도 · ⛅ 흐리고 맑음</div>
+      </div>
+    </div>
+
+    <div class="entry-card reveal" onclick="openModal('jungfrau')">
+      <img class="card-thumb" src="사진/DCBBC2EC-2662-4163-9325-727345A68442_1_105_c.jpeg" alt="융프라우요흐" />
+      <div class="card-body">
+        <span class="entry-tag">⛰ 융프라우요흐</span>
+        <p class="entry-date">Jungfraujoch · 3,454m</p>
+        <h3 class="entry-title">유럽의 정상, Top of Europe</h3>
+        <p class="entry-excerpt">빙하 위에 발을 딛는 순간. 이 장면을 잊지 못할 것 같다.</p>
+        <div class="mood">🤩 경이 · ❄️ 영하</div>
+      </div>
+    </div>
+
+    <div class="entry-card reveal" onclick="openModal('first')">
+      <img class="card-thumb" src="사진/E64FF033-464A-4E91-92C4-860E850EFBBD_1_105_c.jpeg" alt="퍼스트 고카트" />
+      <div class="card-body">
+        <span class="entry-tag">🛻 그린델발트 퍼스트</span>
+        <p class="entry-date">Grindelwald First</p>
+        <h3 class="entry-title">알프스를 배경으로 고카트 질주</h3>
+        <p class="entry-excerpt">노란 헬멧을 쓰고 알프스 경치를 배경으로 마운틴 카트를 탔다. 인생 최고의 드라이브.</p>
+        <div class="mood">🤣 신남 · ☀️ 맑음</div>
+      </div>
+    </div>
+
+    <div class="entry-card reveal" onclick="openModal('trottibike')">
+      <img class="card-thumb" src="사진/9F2213B0-FFAE-4EC2-B56D-422C4EC85D3C_1_105_c.jpeg" alt="트로티바이크" />
+      <div class="card-body">
+        <span class="entry-tag">🛴 트로티바이크</span>
+        <p class="entry-date">First · Männlichen</p>
+        <h3 class="entry-title">산악 킥보드로 내려오다</h3>
+        <p class="entry-excerpt">트로티바이크를 타고 산길을 내려오며 바라본 알프스 전경. 뒤돌아볼 때마다 숨이 막혔다.</p>
+        <div class="mood">🌬 시원함 · ⛅ 부분적으로 흐림</div>
+      </div>
+    </div>
+
+    <div class="entry-card reveal" onclick="openModal('terrace')">
+      <img class="card-thumb" src="사진/AE2FAEB1-1684-48DB-87A8-67BB4A340DC3_1_105_c.jpeg" alt="맥주 테라스" />
+      <div class="card-body">
+        <span class="entry-tag">🍺 선셋 테라스</span>
+        <p class="entry-date">Grindelwald First · Terrace</p>
+        <h3 class="entry-title">구름 속 알프스와 맥주 한 잔</h3>
+        <p class="entry-excerpt">썬 라운저에 누워 에이거가 구름에 감기는 걸 바라보며 마시는 맥주. 이게 바로 스위스다.</p>
+        <div class="mood">😌 여유 · ⛅ 구름 낀 알프스</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <p class="section-eyebrow reveal">✦ Photo Gallery</p>
+  <h2 class="section-title reveal">사진첩</h2>
+  <div class="gallery-grid reveal">
+    <div class="gallery-item" onclick="openLightbox(0)">
+      <img src="사진/55438EE3-6E6C-4C0C-86A5-7C5DAD204D68_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(1)">
+      <img src="사진/1B6ED38B-A6F2-4F55-BFA3-A8DCB072555A_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(2)">
+      <img src="사진/4A7A5413-28B9-4E37-8F5A-477D886ED289_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(3)">
+      <img src="사진/317A8097-4D4D-4EFD-BEE7-501ED68B1297_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(4)">
+      <img src="사진/0E222265-A237-4DC5-BF89-59E7448FAD60_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(5)">
+      <img src="사진/501905B5-2326-4165-AD77-E0739B8CEFCF_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(6)">
+      <img src="사진/8EC3BA0E-FE4D-49C0-8DE2-4FF5EAEACD40_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(7)">
+      <img src="사진/A79A73EE-9598-43DB-B02F-1512E1B81DA9_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+    <div class="gallery-item" onclick="openLightbox(8)">
+      <img src="사진/B25B3855-86C0-40A0-88AD-3BB4D742285C_1_105_c.jpeg" alt="" />
+      <div class="overlay"></div>
+    </div>
+  </div>
+  <div class="gallery-more reveal">
+    <button onclick="openLightbox(0)">전체 사진 보기 (27장) →</button>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="quote-section">
+  <div class="quote-mark">"</div>
+  <p class="quote-text">산은 항상 거기 있었다.<br />내가 드디어 거기 간 것뿐이다.</p>
+  <p class="quote-src">— 융프라우요흐 3,454m에서</p>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ALPS DIARY</div>
+  <div class="footer-text">🇨🇭 스위스 · 인터라켄 · 그린델발트 · 융프라우요흐</div>
+</footer>
+
+<!-- DIARY MODAL -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal-content">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-inner"></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightboxOnBg(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-prev" onclick="lightboxNav(-1)">‹</button>
+  <img id="lightbox-img" src="" alt="" />
+  <button class="lightbox-next" onclick="lightboxNav(1)">›</button>
+  <div class="lightbox-count" id="lightbox-count"></div>
+</div>
+
+<script>
+const allPhotos = [
+  '사진/55438EE3-6E6C-4C0C-86A5-7C5DAD204D68_1_105_c.jpeg',
+  '사진/1B6ED38B-A6F2-4F55-BFA3-A8DCB072555A_1_105_c.jpeg',
+  '사진/4A7A5413-28B9-4E37-8F5A-477D886ED289_1_105_c.jpeg',
+  '사진/317A8097-4D4D-4EFD-BEE7-501ED68B1297_1_105_c.jpeg',
+  '사진/0E222265-A237-4DC5-BF89-59E7448FAD60_1_105_c.jpeg',
+  '사진/501905B5-2326-4165-AD77-E0739B8CEFCF_1_105_c.jpeg',
+  '사진/8EC3BA0E-FE4D-49C0-8DE2-4FF5EAEACD40_1_105_c.jpeg',
+  '사진/A79A73EE-9598-43DB-B02F-1512E1B81DA9_1_105_c.jpeg',
+  '사진/B25B3855-86C0-40A0-88AD-3BB4D742285C_1_105_c.jpeg',
+  '사진/DF5CAD33-BC4C-404E-BE9B-F7253F5D33ED_1_105_c.jpeg',
+  '사진/DCBBC2EC-2662-4163-9325-727345A68442_1_105_c.jpeg',
+  '사진/57DCD4A4-F169-4B6C-B16A-83F935CEE86B_1_105_c.jpeg',
+  '사진/DE43DB16-87C0-4AA7-81B1-2649AA523981_1_105_c.jpeg',
+  '사진/4C39858F-23CB-4ADA-99EC-646045706E5B_1_105_c.jpeg',
+  '사진/49E699A9-E321-4038-B569-9ED56615947D_1_105_c.jpeg',
+  '사진/6A505B6B-112B-4CC5-AF08-3EE86E38034A_1_105_c.jpeg',
+  '사진/A8F50161-A796-4104-B167-3B386167025E_1_105_c.jpeg',
+  '사진/FE10026B-4F6C-4B7B-B015-7A717D53DD34_1_105_c.jpeg',
+  '사진/E4E5CD13-4456-4C51-90F5-1211FE31C869_1_105_c.jpeg',
+  '사진/E03585D0-2969-4C0D-ABDA-7574DF231FA1_1_105_c.jpeg',
+  '사진/16238E32-E25D-4AF6-BB01-F6A26AE853FD_1_105_c.jpeg',
+  '사진/5F1006E7-B0F8-49BC-B388-E6C6FA570D3C_1_105_c.jpeg',
+  '사진/E64FF033-464A-4E91-92C4-860E850EFBBD_1_105_c.jpeg',
+  '사진/9F2213B0-FFAE-4EC2-B56D-422C4EC85D3C_1_105_c.jpeg',
+  '사진/5196860A-C4E8-4500-9876-A28436AE93B5_1_105_c.jpeg',
+  '사진/77E7CBAE-5069-4DA6-90F8-53CB6C436932_1_105_c.jpeg',
+  '사진/AE2FAEB1-1684-48DB-87A8-67BB4A340DC3_1_105_c.jpeg',
+];
+
+const entries = {
+  jungfrau: {
+    tag: '🇨🇭 융프라우요흐 · 3,454m',
+    heroImg: '사진/DF5CAD33-BC4C-404E-BE9B-F7253F5D33ED_1_105_c.jpeg',
+    title: '유럽의 정상, Top of Europe',
+    body: `<p>융프라우요흐는 해발 3,454m. 유럽에서 가장 높은 기차역이다. 아이거글레처 역에서 기차를 갈아타고 터널을 뚫고 올라가는 동안 귀가 먹먹해졌다.</p>
+    <p>밖으로 나오는 순간, 말 그대로 숨이 멎었다. 새파란 하늘, 새하얀 빙하, 그리고 아무 소리도 없는 세계. 영하 8도의 바람이 불었지만 한참을 서 있었다.</p>
+    <p>빙하 위 융프라우 깃발 앞에서 사진을 찍었다. 줄이 길었지만 기다릴 가치가 충분했다. 양팔을 벌리고 눈을 감으니, 이 순간이 오래 기억될 것 같다는 걸 알았다.</p>
+    <p>실내 전시관에서 바위 모형 위에 올라가 깃발을 잡고 웃었다. 약간 어리석어 보이더라도 이런 건 신나게 즐겨야 한다.</p>`,
+    photos: [
+      '사진/55438EE3-6E6C-4C0C-86A5-7C5DAD204D68_1_105_c.jpeg',
+      '사진/57DCD4A4-F169-4B6C-B16A-83F935CEE86B_1_105_c.jpeg',
+      '사진/DCBBC2EC-2662-4163-9325-727345A68442_1_105_c.jpeg',
+      '사진/4C39858F-23CB-4ADA-99EC-646045706E5B_1_105_c.jpeg',
+      '사진/A79A73EE-9598-43DB-B02F-1512E1B81DA9_1_105_c.jpeg',
+      '사진/DE43DB16-87C0-4AA7-81B1-2649AA523981_1_105_c.jpeg',
+      '사진/0E222265-A237-4DC5-BF89-59E7448FAD60_1_105_c.jpeg',
+    ],
+    meta: ['📍 Jungfraujoch', '❄️ -8°C', '🚂 융프라우 철도', '🤩 평생 기억']
+  },
+  grindelwald: {
+    tag: '🏔 그린델발트',
+    heroImg: '사진/49E699A9-E321-4038-B569-9ED56615947D_1_105_c.jpeg',
+    title: '아이거 북벽 아래 동화 마을',
+    body: `<p>그린델발트는 해발 1,034m에 자리한 산악 마을이다. 인터라켄에서 기차로 35분. 노란 초록의 그린델발트 기차가 플랫폼으로 들어오던 순간부터 이미 설렜다.</p>
+    <p>마을 메인 스트리트를 걸으면 어떤 각도로 고개를 들어도 아이거 북벽이 압도적으로 서 있다. 수직 1,800m의 암벽. 저 벽을 오르는 사람이 있다는 게 믿기지 않는다.</p>
+    <p>그린 초원 위에 점점이 박힌 스위스 샬레들. 걷다가 멈추고, 멈추다가 걷고. 어디서 사진을 찍어도 엽서 같은 장면이 나왔다.</p>`,
+    photos: [
+      '사진/317A8097-4D4D-4EFD-BEE7-501ED68B1297_1_105_c.jpeg',
+      '사진/49E699A9-E321-4038-B569-9ED56615947D_1_105_c.jpeg',
+      '사진/6A505B6B-112B-4CC5-AF08-3EE86E38034A_1_105_c.jpeg',
+      '사진/A8F50161-A796-4104-B167-3B386167025E_1_105_c.jpeg',
+      '사진/FE10026B-4F6C-4B7B-B015-7A717D53DD34_1_105_c.jpeg',
+      '사진/1B6ED38B-A6F2-4F55-BFA3-A8DCB072555A_1_105_c.jpeg',
+    ],
+    meta: ['📍 Grindelwald', '🏔 해발 1,034m', '☀️ 맑음', '🏔 아이거 북벽']
+  },
+  iseltwald: {
+    tag: '🏞 이젤트발트 · 브리엔츠 호수',
+    heroImg: '사진/5196860A-C4E8-4500-9876-A28436AE93B5_1_105_c.jpeg',
+    title: '믿을 수 없는 터키석 빛 호수',
+    body: `<p>브리엔츠 호수는 글자 그대로 터키석 색이다. 사진 보정이 아니다. 빙하수가 흘러들어 만들어낸 이 색은 실제로 보면 더 충격적이다.</p>
+    <p>이젤트발트 마을 끝자락에서 호수를 바라봤다. 스위스 국기가 바람에 펄럭이고, 산이 호수에 반사됐다. 이 마을에 사는 사람들은 매일 이 풍경을 보는 거겠지.</p>
+    <p>드라마 〈사랑의 불시착〉 촬영지로도 유명한 곳. 그 드라마의 감성이 왜 여기서 나왔는지 와보니 바로 이해가 됐다.</p>`,
+    photos: [
+      '사진/4A7A5413-28B9-4E37-8F5A-477D886ED289_1_105_c.jpeg',
+      '사진/5196860A-C4E8-4500-9876-A28436AE93B5_1_105_c.jpeg',
+      '사진/77E7CBAE-5069-4DA6-90F8-53CB6C436932_1_105_c.jpeg',
+    ],
+    meta: ['📍 Iseltwald', '💧 브리엔츠 호수', '🇨🇭 스위스 국기', '🎥 드라마 촬영지']
+  },
+  interlaken: {
+    tag: '🚉 인터라켄',
+    heroImg: '사진/E4E5CD13-4456-4C51-90F5-1211FE31C869_1_105_c.jpeg',
+    title: '알프스 여행의 관문, 인터라켄 오스트',
+    body: `<p>인터라켄은 두 개의 호수 사이에 자리한 작은 도시다. 인터라켄(Inter-laken)은 말 그대로 '호수 사이'라는 뜻.</p>
+    <p>인터라켄 오스트역에서 내리자마자 역 건물 뒤로 설산이 보였다. 여행의 첫 장면치고 너무 완벽했다. 역 앞에서 한참 서서 산을 바라봤다.</p>
+    <p>숙소에서 바라본 아침 풍경은 더 극적이었다. 안개가 걷히며 드러나는 만년설 봉우리들. 스위스에서의 하루가 이렇게 시작됐다.</p>`,
+    photos: [
+      '사진/E4E5CD13-4456-4C51-90F5-1211FE31C869_1_105_c.jpeg',
+      '사진/E03585D0-2969-4C0D-ABDA-7574DF231FA1_1_105_c.jpeg',
+    ],
+    meta: ['📍 Interlaken Ost', '🚂 기차 여행', '🏔 첫 알프스', '😊 설렘']
+  },
+  first: {
+    tag: '🛻 그린델발트 퍼스트',
+    heroImg: '사진/16238E32-E25D-4AF6-BB01-F6A26AE853FD_1_105_c.jpeg',
+    title: '알프스 배경으로 마운틴 카트 질주',
+    body: `<p>그린델발트 퍼스트(Grindelwald First)는 케이블카로 올라가는 해발 2,168m의 액티비티 천국이다. 마운틴 카트, 트로티바이크, 집라인, 스카이워크까지.</p>
+    <p>노란 헬멧을 쓰고 마운틴 카트에 탔다. 알프스를 배경으로 자갈길을 달리는 기분은 뭐라 설명하기 어렵다. 너무 즐거워서 멈추고 싶지 않았다.</p>
+    <p>패러글라이더들이 산 위에서 뛰어내리는 걸 옆에서 지켜봤다. 저 사람들 용기가 대단하다. 나는 카트만으로도 충분히 스릴 있었다.</p>
+    <p>테라스에 앉아 구름에 반쯤 가린 아이거를 바라보며 맥주를 마셨다. 이 순간이 이번 여행에서 제일 평화로웠다.</p>`,
+    photos: [
+      '사진/16238E32-E25D-4AF6-BB01-F6A26AE853FD_1_105_c.jpeg',
+      '사진/5F1006E7-B0F8-49BC-B388-E6C6FA570D3C_1_105_c.jpeg',
+      '사진/E64FF033-464A-4E91-92C4-860E850EFBBD_1_105_c.jpeg',
+      '사진/501905B5-2326-4165-AD77-E0739B8CEFCF_1_105_c.jpeg',
+      '사진/AE2FAEB1-1684-48DB-87A8-67BB4A340DC3_1_105_c.jpeg',
+      '사진/8EC3BA0E-FE4D-49C0-8DE2-4FF5EAEACD40_1_105_c.jpeg',
+    ],
+    meta: ['📍 Grindelwald First', '🏔 해발 2,168m', '🛻 마운틴 카트', '🪂 패러글라이더']
+  },
+  trottibike: {
+    tag: '🛴 트로티바이크',
+    heroImg: '사진/9F2213B0-FFAE-4EC2-B56D-422C4EC85D3C_1_105_c.jpeg',
+    title: '산악 킥보드로 내려오는 알프스',
+    body: `<p>트로티바이크(Trottibike)는 스위스식 산악 킥보드다. 남리헨(Männlichen)에서 타고 내려오면 아이거 북벽을 정면으로 바라보며 달릴 수 있다.</p>
+    <p>노란 헬멧을 다시 쓰고 출발했다. 내려가는 내내 뒤를 돌아봤다. 어떤 각도로 봐도 말이 안 되는 풍경.</p>
+    <p>아이거 익스프레스 터미널 앞에서 표지판을 발견하고 사진을 찍었다. 내가 정말 여기 있다는 증거가 필요했다.</p>`,
+    photos: [
+      '사진/9F2213B0-FFAE-4EC2-B56D-422C4EC85D3C_1_105_c.jpeg',
+      '사진/B25B3855-86C0-40A0-88AD-3BB4D742285C_1_105_c.jpeg',
+    ],
+    meta: ['📍 Männlichen → Grindelwald', '🛴 트로티바이크', '🏔 아이거 전망', '🌬 시원함']
+  },
+  terrace: {
+    tag: '🍺 퍼스트 테라스',
+    heroImg: '사진/AE2FAEB1-1684-48DB-87A8-67BB4A340DC3_1_105_c.jpeg',
+    title: '구름 속 알프스와 맥주 한 잔',
+    body: `<p>그린델발트 퍼스트의 야외 테라스. 썬 라운저가 잔디밭에 나란히 놓여 있고, 테이블에는 차가운 맥주가 있었다.</p>
+    <p>구름이 에이거를 반쯤 가리고 있었다. 완전히 맑지도, 완전히 흐리지도 않은 그 중간 어딘가. 오히려 그게 더 신비로웠다.</p>
+    <p>아무것도 하지 않고 그냥 누워 산을 바라봤다. 이런 게 여행이 줄 수 있는 가장 큰 선물이다.</p>`,
+    photos: [
+      '사진/AE2FAEB1-1684-48DB-87A8-67BB4A340DC3_1_105_c.jpeg',
+      '사진/8EC3BA0E-FE4D-49C0-8DE2-4FF5EAEACD40_1_105_c.jpeg',
+    ],
+    meta: ['📍 Grindelwald First Terrace', '🍺 스위스 맥주', '⛅ 구름 낀 알프스', '😌 완벽한 여유']
+  }
+};
+
+function openModal(id) {
+  const e = entries[id]; if (!e) return;
+  const photosHtml = e.photos.map(p =>
+    `<img src="${p}" onclick="openLightboxFromSrc('${p}')" />`
+  ).join('');
+  document.getElementById('modal-inner').innerHTML = `
+    <img class="modal-hero" src="${e.heroImg}" alt="${e.title}" />
+    <div class="modal-body-wrap">
+      <span class="entry-tag modal-tag">${e.tag}</span>
+      <h2 class="modal-title">${e.title}</h2>
+      <hr class="modal-divider"/>
+      <div class="modal-text">${e.body}</div>
+      <div class="modal-photos">${photosHtml}</div>
+      <div class="modal-footer-meta">${e.meta.map(m=>`<span>${m}</span>`).join('')}</div>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal')) closeModal();
+}
+
+let currentLightboxIndex = 0;
+
+function openLightbox(idx) {
+  currentLightboxIndex = idx;
+  document.getElementById('lightbox-img').src = allPhotos[idx];
+  document.getElementById('lightbox-count').textContent = `${idx + 1} / ${allPhotos.length}`;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function openLightboxFromSrc(src) {
+  const idx = allPhotos.indexOf(src);
+  openLightbox(idx >= 0 ? idx : 0);
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function closeLightboxOnBg(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+
+function lightboxNav(dir) {
+  currentLightboxIndex = (currentLightboxIndex + dir + allPhotos.length) % allPhotos.length;
+  document.getElementById('lightbox-img').src = allPhotos[currentLightboxIndex];
+  document.getElementById('lightbox-count').textContent = `${currentLightboxIndex + 1} / ${allPhotos.length}`;
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeLightbox(); closeModal(); }
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'ArrowLeft') lightboxNav(-1);
+});
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
