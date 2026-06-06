@@ -3,6 +3,17 @@
    모든 페이지가 이 파일을 통해 data.json/data.js 의 내용을 렌더합니다.
    ============================================================ */
 
+// ── 베이스 경로 감지 (GitHub Pages 서브디렉토리 대응) ─────────
+const BASE_PATH = (() => {
+  const s = document.querySelector('script[src$="data.js"]');
+  if (s) {
+    const m = s.src.match(/^(.*\/)data\.js$/);
+    if (m) return m[1].replace(location.origin, '');
+  }
+  return '/';
+})();
+function imgUrl(p) { return BASE_PATH + p; }
+
 // ── 데이터 로드 ───────────────────────────────────────────────
 async function getData() {
   if (window.BLOG_DATA) return window.BLOG_DATA;     // data.js (정적)
@@ -35,14 +46,14 @@ function setMeta(title, desc, imgPath) {
   const tags = {
     'og:title': title || siteName,
     'og:description': desc || '',
-    'og:image': imgPath ? (location.origin + '/' + imgPath) : '',
+    'og:image': imgPath ? (location.origin + imgUrl(imgPath)) : '',
     'og:type': 'website',
     'og:url': location.href,
     'description': desc || '',
     'twitter:card': 'summary_large_image',
     'twitter:title': title || siteName,
     'twitter:description': desc || '',
-    'twitter:image': imgPath ? (location.origin + '/' + imgPath) : '',
+    'twitter:image': imgPath ? (location.origin + imgUrl(imgPath)) : '',
   };
   Object.entries(tags).forEach(([name, content]) => {
     const isProp = name.startsWith('og:') || name.startsWith('twitter:');
@@ -86,10 +97,10 @@ let _modalEntries = {};
 function openModal(id) {
   const e = _modalEntries[id]; if (!e) return;
   const photos = (e.photos || []).map((p,i) =>
-    `<img src="/${p}" onclick="openLightbox(${JSON.stringify(e.photos||[])},${i})" />`
+    `<img src="${imgUrl(p)}" onclick="openLightbox(${JSON.stringify(e.photos||[])},${i})" />`
   ).join('');
   document.getElementById('modal-inner').innerHTML = `
-    <img class="modal-hero" src="/${e.heroImage}" />
+    <img class="modal-hero" src="${imgUrl(e.heroImage)}" />
     <div class="modal-bwrap">
       <span class="entry-tag">${h(e.tag)}</span>
       <h2 class="modal-title">${h(e.title)}</h2>
@@ -111,7 +122,7 @@ function _handleModalBg(e) { if (e.target === document.getElementById('modal')) 
 let _lbPhotos = [], _lbIdx = 0;
 function openLightbox(photos, idx) {
   _lbPhotos = photos; _lbIdx = idx;
-  document.getElementById('lb-img').src = '/' + photos[idx];
+  document.getElementById('lb-img').src = imgUrl(photos[idx]);
   document.getElementById('lb-count').textContent = `${idx + 1} / ${photos.length}`;
   document.getElementById('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -122,7 +133,7 @@ function closeLightbox() {
 }
 function lbNav(d) {
   _lbIdx = (_lbIdx + d + _lbPhotos.length) % _lbPhotos.length;
-  document.getElementById('lb-img').src = '/' + _lbPhotos[_lbIdx];
+  document.getElementById('lb-img').src = imgUrl(_lbPhotos[_lbIdx]);
   document.getElementById('lb-count').textContent = `${_lbIdx + 1} / ${_lbPhotos.length}`;
 }
 document.addEventListener('keydown', e => {
@@ -229,7 +240,7 @@ async function initTravelList() {
 
   grid.innerHTML = travel.map(t => `
     <a class="trip-card reveal" href="${t.id}/index.html">
-      <img class="trip-thumb" src="/${t.thumbImage}" alt="${h(t.title)}"
+      <img class="trip-thumb" src="${imgUrl(t.thumbImage)}" alt="${h(t.title)}"
            onerror="this.style.display='none'" />
       <div class="trip-body">
         <div class="trip-flag">${t.flag}</div>
@@ -263,7 +274,7 @@ async function initTravelPage(tripId) {
 
   // ── 히어로 ──
   const titleParts = (trip.heroTitle || '').split('\n');
-  document.querySelector('.hero-photo').style.backgroundImage = `url('/${trip.heroImage}')`;
+  document.querySelector('.hero-photo').style.backgroundImage = `url('${imgUrl(trip.heroImage)}')`;
   document.querySelector('.hero-eyebrow').innerHTML = `${trip.flag} ${h(trip.country)}`;
   document.querySelector('.hero-title').innerHTML =
     `${h(titleParts[0] || '')}<br/><em>${h(titleParts[1] || '')}</em>`;
@@ -283,7 +294,7 @@ async function initTravelPage(tripId) {
   const fmEl = document.querySelector('.featured-main');
   if (fmEl && featMain) {
     fmEl.querySelector('.bg').style.background =
-      `linear-gradient(to bottom,rgba(10,12,15,.05) 0%,rgba(10,12,15,.88) 100%), url('/${featMain.heroImage}') center/cover`;
+      `linear-gradient(to bottom,rgba(10,12,15,.05) 0%,rgba(10,12,15,.88) 100%), url('${imgUrl(featMain.heroImage)}') center/cover`;
     fmEl.querySelector('.content').innerHTML = `
       <span class="entry-tag">${h(featMain.tag)}</span>
       <p class="entry-date">${h(featMain.location)}</p>
@@ -298,7 +309,7 @@ async function initTravelPage(tripId) {
     const entry = sides[i];
     if (!entry) return;
     el.querySelector('.bg').style.background =
-      `linear-gradient(to bottom,rgba(10,12,15,.05) 0%,rgba(10,12,15,.88) 100%), url('/${entry.heroImage}') center/cover`;
+      `linear-gradient(to bottom,rgba(10,12,15,.05) 0%,rgba(10,12,15,.88) 100%), url('${imgUrl(entry.heroImage)}') center/cover`;
     el.querySelector('.content').innerHTML = `
       <span class="entry-tag">${h(entry.tag)}</span>
       <p class="entry-date">${h(entry.location)}</p>
@@ -312,7 +323,7 @@ async function initTravelPage(tripId) {
   if (grid) {
     grid.innerHTML = trip.entries.map(e => `
       <div class="entry-card reveal" onclick="openModal('${e.id}')">
-        <img class="card-thumb" src="/${e.cardImage||e.heroImage}" onerror="this.style.background='var(--surface2)'" />
+        <img class="card-thumb" src="${imgUrl(e.cardImage||e.heroImage)}" onerror="this.style.background='var(--surface2)'" />
         <div class="card-body">
           <span class="entry-tag">${h(e.tag)}</span>
           <p class="entry-date">${h(e.location)}</p>
@@ -331,7 +342,7 @@ async function initTravelPage(tripId) {
     const shown = photos.slice(0, 9);
     galleryGrid.innerHTML = shown.map((p, i) => `
       <div class="gallery-item" onclick="openLightbox(${JSON.stringify(photos)},${i})">
-        <img src="/${p}" alt="" /><div class="ov"></div>
+        <img src="${imgUrl(p)}" alt="" /><div class="ov"></div>
       </div>`).join('');
     const moreBtn = document.getElementById('gallery-more-btn');
     if (moreBtn) moreBtn.textContent = `전체 사진 보기 (${photos.length}장) →`;
@@ -362,7 +373,7 @@ async function initDiaryList() {
 
   grid.innerHTML = diary.map(d => `
     <a class="diary-card reveal" href="${d.id}/index.html">
-      <img class="diary-thumb" src="/${d.thumbImage}" alt="${h(d.title)}" onerror="this.style.background='var(--surface2)'" />
+      <img class="diary-thumb" src="${imgUrl(d.thumbImage)}" alt="${h(d.title)}" onerror="this.style.background='var(--surface2)'" />
       <div class="diary-body">
         <div class="diary-cat">${h(d.category)}</div>
         <h3 class="diary-name">${h(d.title)}</h3>
@@ -393,7 +404,7 @@ async function initDiaryPage(diaryId) {
 
   // ── 히어로 ──
   const titleParts = (diary.heroTitle || '').split('\n');
-  document.querySelector('.hero-photo').style.backgroundImage = `url('/${diary.heroImage}')`;
+  document.querySelector('.hero-photo').style.backgroundImage = `url('${imgUrl(diary.heroImage)}')`;
   document.querySelector('.hero-title').innerHTML =
     `${h(titleParts[0] || '')}<br/><em>${h(titleParts[1] || '')}</em>`;
   document.querySelector('.hero-desc').innerHTML =
@@ -448,7 +459,7 @@ async function initDiaryPage(diaryId) {
     setsEl.innerHTML = diary.photoSets.map(ps => {
       const all   = diary.allPhotos || ps.photos;
       const idxOf = p => all.indexOf(p);
-      const img   = (p, i) => `<div class="set-img-wrap"><img class="set-img" src="/${p}" onclick="openLightbox(${JSON.stringify(all)},${idxOf(p)})" /></div>`;
+      const img   = (p, i) => `<div class="set-img-wrap"><img class="set-img" src="${imgUrl(p)}" onclick="openLightbox(${JSON.stringify(all)},${idxOf(p)})" /></div>`;
 
       const GRID = {
         'grid-1':        'set-grid-1',
@@ -492,7 +503,7 @@ async function initDiaryPage(diaryId) {
   const allEl = document.getElementById('all-photos-grid');
   if (allEl && diary.allPhotos) {
     allEl.innerHTML = diary.allPhotos.map((p,i) =>
-      `<div class="ap-item"><img src="/${p}" onclick="openLightbox(${JSON.stringify(diary.allPhotos)},${i})" /></div>`
+      `<div class="ap-item"><img src="${imgUrl(p)}" onclick="openLightbox(${JSON.stringify(diary.allPhotos)},${i})" /></div>`
     ).join('');
   }
 
