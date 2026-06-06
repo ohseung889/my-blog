@@ -410,22 +410,70 @@ async function initDiaryPage(diaryId) {
     <div class="istat"><div class="istat-num">${diary.stats?.outfits||diary.stats?.locations||0}</div><div class="istat-label">Outfits</div></div>
     <div class="istat"><div class="istat-num">${diary.stats?.locations||diary.photoSets?.length||0}</div><div class="istat-label">Sets</div></div>`;
 
+  // ── 새 레이아웃 CSS 주입 ──
+  if (!document.getElementById('_diary-layout-css')) {
+    const s = document.createElement('style');
+    s.id = '_diary-layout-css';
+    s.textContent = `
+      .set-grid-1{border-radius:var(--radius);overflow:hidden}
+      .set-grid-1 .set-img{height:520px}
+      .set-grid-2-tall .set-img{height:520px}
+      .set-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;border-radius:var(--radius);overflow:hidden}
+      .set-grid-4 .set-img{height:220px}
+      .set-grid-asym-r{display:grid;grid-template-columns:1fr 1.3fr;gap:6px;border-radius:var(--radius);overflow:hidden}
+      .set-grid-asym-r .left-col{display:flex;flex-direction:column;gap:6px}
+      .set-grid-asym-r .left-col .set-img{height:190px}
+      .set-grid-asym-r>.set-img-wrap .set-img{height:100%;min-height:260px}
+      .set-grid-featured{display:flex;flex-direction:column;gap:6px;border-radius:var(--radius);overflow:hidden}
+      .set-grid-featured>.set-img-wrap:first-child .set-img{height:400px}
+      .set-grid-featured .row-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+      .set-grid-featured .row-wrap .set-img{height:220px}
+      .set-grid-banner{border-radius:var(--radius);overflow:hidden}
+      .set-grid-banner .set-img{height:320px}
+      @media(max-width:768px){
+        .set-grid-1 .set-img,.set-grid-2-tall .set-img{height:280px}
+        .set-grid-4{grid-template-columns:repeat(2,1fr)}
+        .set-grid-asym-r{grid-template-columns:1fr}
+        .set-grid-asym-r .left-col{flex-direction:row}
+        .set-grid-featured .row-wrap{grid-template-columns:repeat(2,1fr)}
+        .set-grid-banner .set-img{height:200px}
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
   // ── 사진 세트 ──
   const setsEl = document.getElementById('photo-sets');
   if (setsEl && diary.photoSets) {
     setsEl.innerHTML = diary.photoSets.map(ps => {
-      const gridClass =
-        ps.layout === 'grid-3'    ? 'set-grid-3' :
-        ps.layout === 'grid-asym' ? 'set-grid-asym' : 'set-grid-2';
-      const photosHtml =
-        ps.layout === 'grid-asym' && ps.photos.length >= 3
-          ? `<div class="set-img-wrap"><img class="set-img" src="/${ps.photos[0]}" onclick="openLightbox(${JSON.stringify(diary.allPhotos||ps.photos)},0)" /></div>
-             <div class="right-col">
-               ${ps.photos.slice(1).map((p,i)=>`<div class="set-img-wrap"><img class="set-img" src="/${p}" onclick="openLightbox(${JSON.stringify(diary.allPhotos||ps.photos)},${i+1})" /></div>`).join('')}
-             </div>`
-          : ps.photos.map((p,i) =>
-              `<div class="set-img-wrap"><img class="set-img" src="/${p}" onclick="openLightbox(${JSON.stringify(diary.allPhotos||ps.photos)},${i})" /></div>`
-            ).join('');
+      const all   = diary.allPhotos || ps.photos;
+      const idxOf = p => all.indexOf(p);
+      const img   = (p, i) => `<div class="set-img-wrap"><img class="set-img" src="/${p}" onclick="openLightbox(${JSON.stringify(all)},${idxOf(p)})" /></div>`;
+
+      const GRID = {
+        'grid-1':        'set-grid-1',
+        'grid-2':        'set-grid-2',
+        'grid-2-tall':   'set-grid-2',   // CSS height 차이만
+        'grid-3':        'set-grid-3',
+        'grid-4':        'set-grid-4',
+        'grid-asym':     'set-grid-asym',
+        'grid-asym-r':   'set-grid-asym-r',
+        'grid-featured': 'set-grid-featured',
+        'grid-banner':   'set-grid-banner',
+      };
+      const gridClass = (GRID[ps.layout] || 'set-grid-2') + (ps.layout === 'grid-2-tall' ? ' set-grid-2-tall' : '');
+
+      let photosHtml;
+      if (ps.layout === 'grid-asym' && ps.photos.length >= 3) {
+        photosHtml = img(ps.photos[0]) + `<div class="right-col">${ps.photos.slice(1).map(img).join('')}</div>`;
+      } else if (ps.layout === 'grid-asym-r' && ps.photos.length >= 3) {
+        photosHtml = `<div class="left-col">${ps.photos.slice(0,-1).map(img).join('')}</div>` + img(ps.photos[ps.photos.length-1]);
+      } else if (ps.layout === 'grid-featured' && ps.photos.length >= 2) {
+        photosHtml = img(ps.photos[0]) + `<div class="row-wrap">${ps.photos.slice(1).map(img).join('')}</div>`;
+      } else {
+        photosHtml = ps.photos.map(img).join('');
+      }
+
       return `
         <div class="photo-set reveal">
           <div class="set-header">
@@ -494,6 +542,25 @@ async function initDevList() {
 // 개발 기록 상세 페이지
 // ================================================================
 async function initDevPage(devId) {
+  // ── 코드 탭 CSS 주입 (기존 페이지 호환) ──
+  if (!document.getElementById('_dev-tab-css')) {
+    const s = document.createElement('style');
+    s.id = '_dev-tab-css';
+    s.textContent = `
+      .code-tabs{border-top:1px solid var(--border)}
+      .code-tab-bar{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--surface);border-bottom:1px solid var(--border);gap:8px}
+      .code-tab-group{display:flex;gap:2px;background:var(--surface2);border-radius:8px;padding:3px;flex-shrink:0}
+      .code-tab-btn{background:transparent;border:none;color:var(--muted);font-size:.75rem;font-weight:600;padding:5px 14px;border-radius:6px;cursor:pointer;transition:all .15s;letter-spacing:.04em;white-space:nowrap}
+      .code-tab-btn:hover{color:var(--text)}
+      .code-tab-btn.active{background:var(--bg);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,.4)}
+      .code-tab-actions{display:flex;align-items:center;gap:6px}
+      .code-action-btn{display:inline-flex;align-items:center;gap:5px;background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap}
+      .code-action-btn:hover{border-color:var(--accent);color:var(--accent)}
+      .code-action-btn svg{flex-shrink:0}
+    `;
+    document.head.appendChild(s);
+  }
+
   const data  = await getData();
   const entry = (data.dev || []).find(d => d.id === devId);
   if (!entry) {
@@ -529,21 +596,32 @@ async function initDevPage(devId) {
     const tabsHtml = hasTabs ? `
       <div class="code-tabs">
         <div class="code-tab-bar">
-          <button class="code-tab-btn active" onclick="switchCodeTab(this,'html',${i})">HTML</button>
-          <button class="code-tab-btn" onclick="switchCodeTab(this,'css',${i})">CSS</button>
-          <button class="code-tab-btn" onclick="switchCodeTab(this,'js',${i})">JS</button>
-          <div style="flex:1"></div>
-          <button class="code-btn" onclick="copyTabCode(${i})">📋 복사</button>
-          <button class="code-btn" id="toggle-btn-${i}" onclick="toggleCode(${i})">🙈 숨기기</button>
+          <div class="code-tab-group">
+            <button class="code-tab-btn active" data-lang="html" onclick="switchCodeTab(this,'html',${i})">HTML</button>
+            <button class="code-tab-btn" data-lang="css" onclick="switchCodeTab(this,'css',${i})">CSS</button>
+            <button class="code-tab-btn" data-lang="js" onclick="switchCodeTab(this,'js',${i})">JS</button>
+          </div>
+          <div class="code-tab-actions">
+            <button class="code-action-btn" onclick="copyTabCode(${i})" title="복사">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              복사
+            </button>
+            <button class="code-action-btn" id="toggle-btn-${i}" onclick="toggleCode(${i})" title="숨기기">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              숨기기
+            </button>
+          </div>
         </div>
-        <div id="code-pane-html-${i}">
-          <pre class="code-pre" id="code-src-html-${i}"><code>${h(block.html||'')}</code></pre>
-        </div>
-        <div id="code-pane-css-${i}" style="display:none">
-          <pre class="code-pre" id="code-src-css-${i}"><code>${h(block.css||'')}</code></pre>
-        </div>
-        <div id="code-pane-js-${i}" style="display:none">
-          <pre class="code-pre" id="code-src-js-${i}"><code>${h(block.js||'')}</code></pre>
+        <div id="code-panes-${i}">
+          <div id="code-pane-html-${i}">
+            <pre class="code-pre" id="code-src-html-${i}"><code>${h(block.html||'')}</code></pre>
+          </div>
+          <div id="code-pane-css-${i}" style="display:none">
+            <pre class="code-pre" id="code-src-css-${i}"><code>${h(block.css||'')}</code></pre>
+          </div>
+          <div id="code-pane-js-${i}" style="display:none">
+            <pre class="code-pre" id="code-src-js-${i}"><code>${h(block.js||'')}</code></pre>
+          </div>
         </div>
       </div>` : `
       <div class="code-wrap" id="code-wrap-${i}">
@@ -578,13 +656,65 @@ async function initDevPage(devId) {
       iframe.srcdoc = combined;
       iframe.onload = () => {
         try {
-          const doc = iframe.contentDocument || iframe.contentWindow.document;
-          const ht = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
-          iframe.style.height = Math.min(ht + 32, 700) + 'px';
+          if (block.previewHeight) {
+            // 에디터에서 지정한 높이 사용
+            iframe.style.height = block.previewHeight + 'px';
+          } else {
+            // 콘텐츠 높이 자동 계산
+            const doc = iframe.contentDocument || iframe.contentWindow.document;
+            const ht  = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+            iframe.style.height = Math.min(ht + 32, 700) + 'px';
+          }
         } catch {}
       };
     });
   });
+
+  // ── 전체 HTML 라이브 데모 ──
+  function buildFullHtml(e) {
+    if (e.bodyHtmlParts && (e.bodyHtmlParts.html || e.bodyHtmlParts.css || e.bodyHtmlParts.js)) {
+      const { html='', css='', js='' } = e.bodyHtmlParts;
+      return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`;
+    }
+    return e.bodyHtml || '';
+  }
+  const fullHtml = buildFullHtml(entry);
+  const demoSection = document.getElementById('live-demo-section');
+  if (demoSection && fullHtml.trim()) {
+    demoSection.style.display = 'block';
+    const iframe = document.getElementById('live-demo-iframe');
+    if (iframe) {
+      iframe.srcdoc = fullHtml;
+      iframe.onload = () => {
+        try {
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          const ht  = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+          iframe.style.height = Math.min(ht + 20, 900) + 'px';
+        } catch {}
+      };
+      // 새 탭 버튼
+      const newTabBtn = document.getElementById('live-demo-newtab');
+      if (newTabBtn) {
+        newTabBtn.onclick = () => {
+          const blob = new Blob([fullHtml], { type: 'text/html' });
+          const url  = URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          setTimeout(() => URL.revokeObjectURL(url), 5000);
+        };
+      }
+      // 크기 토글
+      let big = false;
+      const sizeBtn = document.getElementById('live-demo-size');
+      if (sizeBtn) {
+        sizeBtn.onclick = () => {
+          big = !big;
+          iframe.style.height = big ? '90vh' : '';
+          iframe.dispatchEvent(new Event('load')); // re-trigger auto-height
+          sizeBtn.textContent = big ? '⛶ 원래 크기' : '⛶ 크게 보기';
+        };
+      }
+    }
+  }
 
   setMeta(entry.title, entry.description);
   initReveal();
@@ -632,11 +762,22 @@ async function copyBlockCode(idx) {
 
 // 소스코드 보기/숨기기
 function toggleCode(idx) {
-  const wrap = document.getElementById(`code-wrap-${idx}`);
-  const pre  = document.getElementById(`code-src-${idx}`);
-  const btn  = document.getElementById(`toggle-btn-${idx}`);
-  if (!pre && !wrap) return;
-  const el = pre || wrap;
+  const btn = document.getElementById(`toggle-btn-${idx}`);
+
+  // 탭 구조 (code-panes-{idx} wrapper 존재)
+  const panesWrap = document.getElementById(`code-panes-${idx}`);
+  if (panesWrap) {
+    const hidden = panesWrap.style.display === 'none';
+    panesWrap.style.display = hidden ? '' : 'none';
+    if (btn) btn.innerHTML = hidden
+      ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> 숨기기`
+      : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> 보기`;
+    return;
+  }
+
+  // 단일 HTML 구조 (비탭)
+  const el = document.getElementById(`code-src-${idx}`) || document.getElementById(`code-wrap-${idx}`);
+  if (!el) return;
   const hidden = el.style.display === 'none';
   el.style.display = hidden ? 'block' : 'none';
   if (btn) btn.textContent = hidden ? '🙈 숨기기' : '👁 보기';

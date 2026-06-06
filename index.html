@@ -253,113 +253,32 @@
     <h2 class="sec-title">카테고리</h2>
   </div>
   <div class="sections-grid">
-
     <a class="section-card travel reveal" href="travel/index.html">
       <div class="card-icon">✈️</div>
-      <div>
-        <p class="card-category">Travel</p>
-        <h3 class="card-name">여행 일기</h3>
-      </div>
+      <div><p class="card-category">Travel</p><h3 class="card-name">여행 일기</h3></div>
       <p class="card-desc">다녀온 나라, 머문 도시, 먹은 것들, 느낀 것들. 사진과 함께 기록하는 여행의 모든 순간.</p>
-      <div class="card-count">
-        <span>2개 여행 · 77장의 사진</span>
-        <span class="card-arrow">→</span>
-      </div>
+      <div class="card-count"><span id="travel-count">…</span><span class="card-arrow">→</span></div>
     </a>
-
     <a class="section-card dev reveal" href="dev/index.html">
       <div class="card-icon">💻</div>
-      <div>
-        <p class="card-category">Dev Log</p>
-        <h3 class="card-name">개발 기록</h3>
-      </div>
+      <div><p class="card-category">Dev Log</p><h3 class="card-name">개발 기록</h3></div>
       <p class="card-desc">만든 것, 배운 것, 삽질한 것. 프로젝트 기록과 기술 메모를 쌓아두는 공간.</p>
-      <div class="card-count">
-        <span>곧 시작 예정</span>
-        <span class="card-arrow">→</span>
-      </div>
+      <div class="card-count"><span id="dev-count">…</span><span class="card-arrow">→</span></div>
     </a>
-
     <a class="section-card diary reveal" href="diary/index.html">
       <div class="card-icon">📝</div>
-      <div>
-        <p class="card-category">Diary</p>
-        <h3 class="card-name">일기</h3>
-      </div>
+      <div><p class="card-category">Diary</p><h3 class="card-name">일기</h3></div>
       <p class="card-desc">별거 없는 하루, 별거 있는 하루. 지나가는 생각들을 흘려보내지 않기 위해 쓰는 기록.</p>
-      <div class="card-count">
-        <span>1개 일기 · 25장의 사진</span>
-        <span class="card-arrow">→</span>
-      </div>
+      <div class="card-count"><span id="diary-count">…</span><span class="card-arrow">→</span></div>
     </a>
-
   </div>
 </section>
 
-<!-- RECENT -->
 <section class="recent">
   <div class="recent-header reveal">
-    <div>
-      <p class="eyebrow">✦ Recent</p>
-      <h2 class="sec-title">최근 기록</h2>
-    </div>
+    <div><p class="eyebrow">✦ Recent</p><h2 class="sec-title">최근 기록</h2></div>
   </div>
-  <div class="recent-list reveal">
-
-    <a class="recent-item travel" href="travel/france/index.html">
-      <div class="recent-dot"></div>
-      <div class="recent-meta">🇫🇷 France</div>
-      <div class="recent-text">
-        <div class="recent-title">파리 — 웨딩 스냅 촬영 여행</div>
-        <div class="recent-sub">에펠탑 아래, 센 강 다리 위, 루프탑에서 · 50장의 사진</div>
-      </div>
-      <span class="recent-tag">여행</span>
-      <span class="recent-arrow">→</span>
-    </a>
-
-    <a class="recent-item diary" href="diary/wedding/index.html">
-      <div class="recent-dot"></div>
-      <div class="recent-meta">💍 Wedding</div>
-      <div class="recent-text">
-        <div class="recent-title">웨딩 촬영 일기</div>
-        <div class="recent-sub">스튜디오, 야외 정원 · 25장의 사진</div>
-      </div>
-      <span class="recent-tag">일기</span>
-      <span class="recent-arrow">→</span>
-    </a>
-
-    <a class="recent-item travel" href="travel/switzerland/index.html">
-      <div class="recent-dot"></div>
-      <div class="recent-meta">🇨🇭 Switzerland</div>
-      <div class="recent-text">
-        <div class="recent-title">스위스 · 인터라켄 & 그린델발트 & 융프라우요흐</div>
-        <div class="recent-sub">해발 3,454m, 유럽의 정상에 서다 · 27장의 사진</div>
-      </div>
-      <span class="recent-tag">여행</span>
-      <span class="recent-arrow">→</span>
-    </a>
-
-    <div class="recent-item dev" style="opacity:0.4; pointer-events:none;">
-      <div class="recent-dot"></div>
-      <div class="recent-meta">Coming soon</div>
-      <div class="recent-text">
-        <div class="recent-title">개발 기록이 곧 추가됩니다</div>
-        <div class="recent-sub">프로젝트, 학습, TIL 등</div>
-      </div>
-      <span class="recent-tag">개발</span>
-    </div>
-
-    <div class="recent-item diary" style="opacity:0.4; pointer-events:none;">
-      <div class="recent-dot"></div>
-      <div class="recent-meta">Coming soon</div>
-      <div class="recent-text">
-        <div class="recent-title">일기가 곧 추가됩니다</div>
-        <div class="recent-sub">일상, 생각, 감정 등</div>
-      </div>
-      <span class="recent-tag">일기</span>
-    </div>
-
-  </div>
+  <div class="recent-list" id="recent-list"></div>
 </section>
 
 <footer>
@@ -367,11 +286,43 @@
   <div class="footer-text">여행 · 개발 · 일상의 기록</div>
 </footer>
 
+<script src="data.js"></script>
+<script src="js/blog.js"></script>
 <script>
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.08 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+async function renderHome() {
+  const data = await getData();
+  const travel = data.travel || [];
+  const diary  = data.diary  || [];
+  const dev    = data.dev    || [];
+
+  const tPhotos = travel.reduce((a,t)=>a+(t.stats&&t.stats.photos||0),0);
+  document.getElementById('travel-count').textContent = travel.length + '개 여행 · ' + tPhotos + '장의 사진';
+  document.getElementById('dev-count').textContent    = dev.length > 0 ? dev.length + '개 기록' : '곧 시작 예정';
+  document.getElementById('diary-count').textContent  = diary.length > 0 ? diary.length + '개 일기' : '곧 시작 예정';
+
+  const items = [
+    ...travel.map(t=>({ type:'travel', tag:'여행', href:'travel/'+t.id+'/index.html', meta:t.flag+' '+t.country, title:t.title, sub:(t.description||'').slice(0,44)+'…', date:t.date||'' })),
+    ...diary.map(d=>({  type:'diary',  tag:'일기', href:'diary/'+d.id+'/index.html',  meta:d.category, title:d.title, sub:(d.description||'').slice(0,44)+'…', date:d.date||'' })),
+    ...dev.map(d=>({    type:'dev',    tag:'개발', href:'dev/'+d.id+'/index.html',    meta:d.category, title:d.title, sub:(d.description||'').slice(0,44)+'…', date:d.date||'' })),
+  ].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6);
+
+  const list = document.getElementById('recent-list');
+  list.innerHTML = items.map(it=>`
+    <a class="recent-item ${it.type}" href="${it.href}">
+      <div class="recent-dot"></div>
+      <div class="recent-meta">${it.meta}</div>
+      <div class="recent-text">
+        <div class="recent-title">${it.title}</div>
+        <div class="recent-sub">${it.sub}</div>
+      </div>
+      <span class="recent-tag">${it.tag}</span>
+      <span class="recent-arrow">→</span>
+    </a>`).join('');
+
+  const obs = new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')}),{threshold:.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+renderHome();
 </script>
 </body>
 </html>

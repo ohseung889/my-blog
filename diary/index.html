@@ -104,26 +104,7 @@
 <section class="entries-section">
   <p class="section-eyebrow reveal">✦ All Entries</p>
   <h2 class="section-title reveal">전체 일기</h2>
-  <div class="diary-grid">
-
-    <a class="diary-card reveal" href="wedding/index.html">
-      <img class="diary-thumb" src="wedding/images/03-04_1.jpg" alt="웨딩" />
-      <div class="diary-body">
-        <div class="diary-cat">💍 Wedding</div>
-        <h3 class="diary-name">웨딩 촬영 일기</h3>
-        <p class="diary-desc">스튜디오에서, 야외 정원에서. 웃음이 끊이지 않았던 우리의 웨딩 촬영 날. 흰 드레스부터 핑크 드레스까지, 25장의 사진.</p>
-        <div class="diary-meta">
-          <span>📸 25장 · 3가지 의상</span>
-          <span class="diary-arrow">→</span>
-        </div>
-      </div>
-    </a>
-
-    <div class="diary-card coming">
-      <div class="coming-inner"><div class="coming-icon">📝</div><p class="coming-text">새 일기가 추가됩니다</p></div>
-    </div>
-
-  </div>
+  <div class="diary-grid" id="diary-grid"></div>
 </section>
 
 <footer>
@@ -131,9 +112,8 @@
   <div class="footer-text">📝 일기</div>
 </footer>
 
-<script>
-const obs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:0.08});
-document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
-</script>
+<script src="../data.js"></script>
+<script src="../js/blog.js"></script>
+<script>initDiaryList();</script>
 </body>
 </html>
